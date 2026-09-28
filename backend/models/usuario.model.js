@@ -30,6 +30,11 @@ module.exports = (sequelize) => {
         type: DataTypes.ENUM('Administrador', 'Conductor'),
         allowNull: false,
       },
+      // Quien hizo la ultima modificacion (ver DER actualizado).
+      modificado_por: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
     },
     {
       tableName: 'usuarios',
