@@ -15,7 +15,7 @@ const obtener = asyncHandler(async (req, res) => {
 
 // POST /api/vehiculos
 const crear = asyncHandler(async (req, res) => {
-  const vehiculo = await vehiculoService.crear(req.body);
+  const vehiculo = await vehiculoService.crear(req.body, req.usuario.id);
   res.status(201).json({ vehiculo });
 });
 
