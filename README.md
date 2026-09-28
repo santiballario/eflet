@@ -35,11 +35,15 @@ eflet/
 cd backend
 npm install
 cp .env.example .env     # completar DB_PASSWORD y JWT_SECRET
-npm run setup            # crea las tablas y carga datos de prueba
+npm run setup            # crea la base, corre las migraciones y carga los datos iniciales
 npm run dev              # API en http://localhost:3000
 ```
 
 Verificar que funciona: `GET http://localhost:3000/api/health` debe responder `{ "ok": true }`.
+
+Usuario de prueba: `admin@eflet.com` / `Admin123!`
+
+Endpoints, reglas de negocio y cómo probar la API: ver [backend/README.md](backend/README.md).
 
 ## Flujo de trabajo con Git
 
