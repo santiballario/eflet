@@ -6,13 +6,24 @@
 const db = require('../models');
 const { hashPassword } = require('../lib/password');
 const { AppError } = require('../lib/errors');
+const tomarCampos = require('../lib/tomar-campos');
 
 // Incluye siempre los datos de Usuario y Persona relacionados, para no
 // tener que pedir 3 endpoints distintos desde el frontend.
+// Persona cuelga de Usuario (no de Conductor), por eso va anidada:
+// Conductor -> Usuario -> Persona, igual que en el DER.
 const INCLUDE_COMPLETO = [
-  { model: db.Usuario, attributes: ['id', 'email', 'rol'] },
-  { model: db.Persona, attributes: ['nombre', 'apellido', 'dni', 'telefono'] },
+  {
+    model: db.Usuario,
+    attributes: ['id', 'email', 'rol'],
+    include: [{ model: db.Persona, attributes: ['nombre', 'apellido', 'dni', 'telefono'] }],
+  },
 ];
+
+// Campos que el cliente puede modificar. Cualquier otro que venga en el
+// body (usuario_id, modificado_por, etc.) se ignora.
+const CAMPOS_PERSONA = ['nombre', 'apellido', 'telefono'];
+const CAMPOS_CONDUCTOR = ['nro_licencia', 'vencimiento_licencia', 'disponibilidad'];
 
 async function listar() {
   return db.Conductor.findAll({ include: INCLUDE_COMPLETO, order: [['id', 'ASC']] });
@@ -26,7 +37,7 @@ async function obtenerPorId(id) {
   return conductor;
 }
 
-async function crear(datos) {
+async function crear(datos, usuarioId) {
   const { email, password, nombre, apellido, dni, telefono, nro_licencia, vencimiento_licencia } = datos;
 
   const emailExistente = await db.Usuario.findOne({ where: { email } });
@@ -42,55 +53,65 @@ async function crear(datos) {
     throw new AppError('Ya existe un conductor con ese numero de licencia.', 409);
   }
 
-  // Transaccion: si falla el paso 2 o 3, se deshace el paso 1 tambien.
-  return db.sequelize.transaction(async (t) => {
-    const passwordHash = await hashPassword(password);
+  // El hash es lento (bcrypt): lo calculamos antes de abrir la transaccion
+  // para no tenerla abierta mas tiempo del necesario.
+  const passwordHash = await hashPassword(password);
 
+  // Transaccion: si falla el paso 2 o 3, se deshace el paso 1 tambien.
+  const conductorId = await db.sequelize.transaction(async (t) => {
     const usuario = await db.Usuario.create(
       { email, password_hash: passwordHash, rol: 'Conductor' },
       { transaction: t }
     );
 
     await db.Persona.create(
-      { usuario_id: usuario.id, nombre, apellido, dni, telefono },
+      { usuario_id: usuario.id, nombre, apellido, dni, telefono, modificado_por: usuarioId },
       { transaction: t }
     );
 
     const conductor = await db.Conductor.create(
-      { usuario_id: usuario.id, nro_licencia, vencimiento_licencia },
+      { usuario_id: usuario.id, nro_licencia, vencimiento_licencia, modificado_por: usuarioId },
       { transaction: t }
     );
 
-    return obtenerPorId(conductor.id);
+    return conductor.id;
   });
+
+  // Se consulta recien despues del commit: dentro de la transaccion, una
+  // consulta "afuera" de ella todavia no ve las filas recien creadas.
+  return obtenerPorId(conductorId);
 }
 
 async function actualizar(id, datos, usuarioId) {
   const conductor = await obtenerPorId(id);
 
-  const { nombre, apellido, telefono, ...datosConductor } = datos;
+  const cambiosPersona = tomarCampos(datos, CAMPOS_PERSONA);
+  const cambiosConductor = tomarCampos(datos, CAMPOS_CONDUCTOR);
 
-  return db.sequelize.transaction(async (t) => {
+  if (cambiosConductor.nro_licencia && cambiosConductor.nro_licencia !== conductor.nro_licencia) {
+    const licenciaExistente = await db.Conductor.findOne({
+      where: { nro_licencia: cambiosConductor.nro_licencia },
+    });
+    if (licenciaExistente) {
+      throw new AppError('Ya existe un conductor con ese numero de licencia.', 409);
+    }
+  }
+
+  await db.sequelize.transaction(async (t) => {
     // nombre/apellido/telefono viven en Persona, no en Conductor.
-    if (nombre || apellido || telefono) {
-      const persona = await db.Persona.findOne({ where: { usuario_id: conductor.usuario_id }, transaction: t });
-      await persona.update(
-        {
-          ...(nombre && { nombre }),
-          ...(apellido && { apellido }),
-          ...(telefono && { telefono }),
-          modificado_por: usuarioId,
-        },
-        { transaction: t }
+    if (Object.keys(cambiosPersona).length > 0) {
+      await db.Persona.update(
+        { ...cambiosPersona, modificado_por: usuarioId },
+        { where: { usuario_id: conductor.usuario_id }, transaction: t }
       );
     }
 
-    if (Object.keys(datosConductor).length > 0) {
-      await conductor.update({ ...datosConductor, modificado_por: usuarioId }, { transaction: t });
+    if (Object.keys(cambiosConductor).length > 0) {
+      await conductor.update({ ...cambiosConductor, modificado_por: usuarioId }, { transaction: t });
     }
-
-    return obtenerPorId(id);
   });
+
+  return obtenerPorId(id);
 }
 
 async function eliminar(id) {

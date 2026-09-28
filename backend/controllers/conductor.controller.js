@@ -12,7 +12,7 @@ const obtener = asyncHandler(async (req, res) => {
 });
 
 const crear = asyncHandler(async (req, res) => {
-  const conductor = await conductorService.crear(req.body);
+  const conductor = await conductorService.crear(req.body, req.usuario.id);
   res.status(201).json({ conductor });
 });
 
