@@ -1,0 +1,19 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno: nunca se suben (ver Clase 13 - Exclusión de archivos sensibles)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Build y logs
+dist/
+build/
+*.log
+
+# Sistema operativo / editor
+.DS_Store
+Thumbs.db
+.vscode/

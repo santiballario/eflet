@@ -1,0 +1,50 @@
+# eFlet
+
+Sistema de gestión de flota para logística farmacéutica: vehículos, conductores, hojas de ruta (viajes), destinos y motivos de no entrega.
+
+Trabajo Grupal Integrador — Desarrollo de Software 2026, UTN FRLP, comisión S31.
+
+**Integrantes:** Santiago Ballario, Stefano Diaz, Gianluca Baiza, Juan Cruz Hillar.
+
+## Stack
+
+| Parte | Tecnología |
+|---|---|
+| Backend | Node.js + Express |
+| ORM | Sequelize |
+| Base de datos | MySQL 8 |
+| Autenticación | JWT (Bearer) + bcrypt, roles Administrador / Conductor |
+| Frontend | React + Vite |
+
+## Estructura
+
+```
+eflet/
+├── backend/    API REST (Express + Sequelize)
+└── frontend/   Interfaz web (React + Vite) — en desarrollo
+```
+
+## Requisitos
+
+- Node.js 20 o superior
+- MySQL 8 corriendo en local
+
+## Cómo levantar el backend
+
+```bash
+cd backend
+npm install
+cp .env.example .env     # completar DB_PASSWORD y JWT_SECRET
+npm run setup            # crea las tablas y carga datos de prueba
+npm run dev              # API en http://localhost:3000
+```
+
+Verificar que funciona: `GET http://localhost:3000/api/health` debe responder `{ "ok": true }`.
+
+## Flujo de trabajo con Git
+
+1. `git fetch --prune` y `git pull origin main` antes de empezar.
+2. Crear una rama por tarea: `git checkout -b feature/nombre-de-la-tarea`.
+3. Commits chicos, con mensaje en imperativo presente (ej: "Agrega CRUD de viajes").
+4. `git push -u origin feature/nombre-de-la-tarea` y abrir un Pull Request hacia `main`.
+5. Nunca `git push --force` sobre `main`.
