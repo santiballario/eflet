@@ -117,6 +117,13 @@ async function actualizar(id, datos, usuarioId) {
 async function eliminar(id) {
   const conductor = await obtenerPorId(id);
 
+  // Integridad: no dar de baja a un conductor con una hoja de ruta sin
+  // terminar (require aca adentro para evitar dependencia circular).
+  const { tieneViajeActivo } = require('./viaje.service');
+  if (await tieneViajeActivo('conductor_id', conductor.id)) {
+    throw new AppError('No se puede eliminar: el conductor esta asignado a un viaje sin finalizar.', 409);
+  }
+
   // Baja logica en cascada manual: Conductor, Persona y Usuario (asi el
   // conductor tambien pierde el acceso para loguearse).
   return db.sequelize.transaction(async (t) => {

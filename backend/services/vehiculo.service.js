@@ -47,6 +47,14 @@ async function actualizar(id, datos, usuarioId) {
 
 async function eliminar(id) {
   const vehiculo = await obtenerPorId(id);
+
+  // Integridad: no dar de baja un vehiculo que esta en una hoja de ruta
+  // sin terminar (require aca adentro para evitar dependencia circular).
+  const { tieneViajeActivo } = require('./viaje.service');
+  if (await tieneViajeActivo('vehiculo_id', vehiculo.id)) {
+    throw new AppError('No se puede eliminar: el vehiculo esta asignado a un viaje sin finalizar.', 409);
+  }
+
   // paranoid:true -> esto es un UPDATE que llena fecha_eliminacion,
   // no un DELETE fisico (ver DER: baja logica en toda entidad auditada).
   await vehiculo.destroy();
