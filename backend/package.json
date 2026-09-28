@@ -6,8 +6,12 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "setup": "node scripts/setup.js",
-    "db:reset": "node scripts/setup.js --force"
+    "setup": "sequelize-cli db:create && sequelize-cli db:migrate && sequelize-cli db:seed:all",
+    "db:migrate": "sequelize-cli db:migrate",
+    "db:seed": "sequelize-cli db:seed:all",
+    "db:reset": "sequelize-cli db:seed:undo:all && sequelize-cli db:migrate:undo:all && sequelize-cli db:migrate && sequelize-cli db:seed:all",
+    "pretest": "sequelize-cli db:create --env test && sequelize-cli db:migrate --env test && sequelize-cli db:seed:all --env test",
+    "test": "node --test --test-concurrency=1 \"tests/**/*.test.js\""
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
@@ -23,6 +27,7 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.4",
-    "sequelize-cli": "^6.6.2"
+    "sequelize-cli": "^6.6.2",
+    "supertest": "^7.3.0"
   }
 }

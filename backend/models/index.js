@@ -5,7 +5,8 @@
 const fs = require('fs');
 const path = require('path');
 const { Sequelize } = require('sequelize');
-const config = require('../config/database')['development'];
+// NODE_ENV elige la base: "test" cuando corren los tests, si no la de desarrollo.
+const config = require('../config/database')[process.env.NODE_ENV === 'test' ? 'test' : 'development'];
 
 const sequelize = new Sequelize(
   config.database,
