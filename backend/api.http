@@ -1,0 +1,285 @@
+###############################################################################
+# eFlet - pedidos de ejemplo para probar la API a mano.
+#
+# Como se usa:
+#   1. Instalar en VS Code la extension "REST Client" (autor: Huachao Mao).
+#   2. Levantar la API:  npm run dev
+#   3. Hacer click en "Send Request" arriba de cada pedido, EN ORDEN:
+#      cada uno usa datos de las respuestas anteriores (token, ids).
+#
+# Los emails, DNI y patentes se generan al azar ({{$randomInt ...}}) para que
+# se pueda correr todo varias veces sin chocar con datos repetidos.
+###############################################################################
+
+@baseUrl = http://localhost:3000/api
+@admin = {{loginAdmin.response.body.token}}
+@conductor = {{loginConductor.response.body.token}}
+@vehiculoId = {{crearVehiculo.response.body.vehiculo.id}}
+@conductorId = {{crearConductor.response.body.conductor.id}}
+@viajeId = {{crearViaje.response.body.viaje.id}}
+@destino1 = {{crearViaje.response.body.viaje.Destinos[0].id}}
+@destino2 = {{crearViaje.response.body.viaje.Destinos[1].id}}
+
+
+### Health check (no requiere login)
+GET {{baseUrl}}/health
+
+
+###############################################################################
+# AUTENTICACION
+###############################################################################
+
+### Login del Administrador (usuario del seeder)
+# @name loginAdmin
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@eflet.com",
+  "password": "Admin123!"
+}
+
+### Quien soy (datos del token)
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{admin}}
+
+### Login con contraseña incorrecta -> 401 "Email o contraseña incorrectos."
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@eflet.com",
+  "password": "otra"
+}
+
+
+###############################################################################
+# VEHICULOS (consultar: ambos roles / modificar: solo Administrador)
+###############################################################################
+
+### Crear vehiculo
+# @name crearVehiculo
+POST {{baseUrl}}/vehiculos
+Authorization: Bearer {{admin}}
+Content-Type: application/json
+
+{
+  "patente": "AB{{$randomInt 100 999}}CD",
+  "marca": "Renault",
+  "modelo": "Kangoo",
+  "cantidad_maxima": 650,
+  "vencimiento_vtv": "2027-06-30"
+}
+
+### Listar vehiculos
+GET {{baseUrl}}/vehiculos
+Authorization: Bearer {{admin}}
+
+### Obtener un vehiculo
+GET {{baseUrl}}/vehiculos/{{vehiculoId}}
+Authorization: Bearer {{admin}}
+
+### Modificar vehiculo (solo los campos que cambian)
+PUT {{baseUrl}}/vehiculos/{{vehiculoId}}
+Authorization: Bearer {{admin}}
+Content-Type: application/json
+
+{
+  "modelo": "Kangoo Express"
+}
+
+### Datos invalidos -> 400
+POST {{baseUrl}}/vehiculos
+Authorization: Bearer {{admin}}
+Content-Type: application/json
+
+{
+  "patente": "",
+  "cantidad_maxima": -10
+}
+
+
+###############################################################################
+# CONDUCTORES (solo Administrador). Crea Usuario + Persona + Conductor.
+###############################################################################
+
+### Crear conductor
+# @name crearConductor
+POST {{baseUrl}}/conductores
+Authorization: Bearer {{admin}}
+Content-Type: application/json
+
+{
+  "email": "conductor{{$randomInt 1000 9999}}@eflet.com",
+  "password": "Conductor123!",
+  "nombre": "Juan",
+  "apellido": "Perez",
+  "dni": "3{{$randomInt 1000000 9999999}}",
+  "telefono": "221-5550000",
+  "nro_licencia": "LIC-{{$randomInt 10000 99999}}",
+  "vencimiento_licencia": "2028-03-15"
+}
+
+### Listar conductores
+GET {{baseUrl}}/conductores
+Authorization: Bearer {{admin}}
+
+### Obtener un conductor
+GET {{baseUrl}}/conductores/{{conductorId}}
+Authorization: Bearer {{admin}}
+
+### Modificar conductor (telefono va a Persona, disponibilidad a Conductor)
+PUT {{baseUrl}}/conductores/{{conductorId}}
+Authorization: Bearer {{admin}}
+Content-Type: application/json
+
+{
+  "telefono": "221-4441234"
+}
+
+### Login del conductor recien creado
+# @name loginConductor
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{crearConductor.request.body.$.email}}",
+  "password": "Conductor123!"
+}
+
+
+###############################################################################
+# CATALOGOS (para los desplegables del frontend)
+###############################################################################
+
+### Estados de viaje
+GET {{baseUrl}}/estados-viaje
+Authorization: Bearer {{admin}}
+
+### Motivos de no entrega
+# @name motivos
+GET {{baseUrl}}/motivos-no-entrega
+Authorization: Bearer {{admin}}
+
+
+###############################################################################
+# VIAJES - armado de la hoja de ruta (Administrador)
+###############################################################################
+
+### Crear viaje con sus destinos -> queda "En Depósito"
+# @name crearViaje
+POST {{baseUrl}}/viajes
+Authorization: Bearer {{admin}}
+Content-Type: application/json
+
+{
+  "vehiculo_id": {{vehiculoId}},
+  "conductor_id": {{conductorId}},
+  "destinos": [
+    { "direccion_farmacia": "Farmacia Central - Calle 7 N 1234, La Plata", "cantidad_bultos": 3 },
+    { "direccion_farmacia": "Farmacia del Bosque - Av 1 N 500, La Plata", "cantidad_bultos": 5 }
+  ]
+}
+
+### Listar viajes (filtros opcionales: ?estado=En Depósito&conductor_id=&vehiculo_id=)
+GET {{baseUrl}}/viajes
+Authorization: Bearer {{admin}}
+
+### Ver la hoja de ruta completa
+GET {{baseUrl}}/viajes/{{viajeId}}
+Authorization: Bearer {{admin}}
+
+### Agregar un destino (toma el siguiente orden libre)
+# @name agregarDestino
+POST {{baseUrl}}/viajes/{{viajeId}}/destinos
+Authorization: Bearer {{admin}}
+Content-Type: application/json
+
+{
+  "direccion_farmacia": "Farmacia Norte - Calle 13 N 800, La Plata",
+  "cantidad_bultos": 2
+}
+
+### Modificar ese destino
+PUT {{baseUrl}}/viajes/{{viajeId}}/destinos/{{agregarDestino.response.body.destino.id}}
+Authorization: Bearer {{admin}}
+Content-Type: application/json
+
+{
+  "cantidad_bultos": 4
+}
+
+### Quitar ese destino
+DELETE {{baseUrl}}/viajes/{{viajeId}}/destinos/{{agregarDestino.response.body.destino.id}}
+Authorization: Bearer {{admin}}
+
+
+###############################################################################
+# VIAJES - recorrido (Conductor asignado)
+###############################################################################
+
+### Mis viajes (el conductor ve solo los suyos)
+GET {{baseUrl}}/viajes
+Authorization: Bearer {{conductor}}
+
+### Registrar salida con el km del vehiculo -> "En Viaje"
+POST {{baseUrl}}/viajes/{{viajeId}}/salida
+Authorization: Bearer {{conductor}}
+Content-Type: application/json
+
+{
+  "km_salida": 15000
+}
+
+### Marcar el destino 1 como NO entregado (con motivo)
+PATCH {{baseUrl}}/viajes/{{viajeId}}/destinos/{{destino1}}/entrega
+Authorization: Bearer {{conductor}}
+Content-Type: application/json
+
+{
+  "estado_entrega": "No entregado",
+  "motivo_id": {{motivos.response.body.motivos[0].id}}
+}
+
+### Marcar el destino 2 como entregado -> el viaje pasa a "Entregado"
+PATCH {{baseUrl}}/viajes/{{viajeId}}/destinos/{{destino2}}/entrega
+Authorization: Bearer {{conductor}}
+Content-Type: application/json
+
+{
+  "estado_entrega": "Entregado"
+}
+
+### Registrar regreso -> "Finalizado" (km_recorridos se calcula solo)
+POST {{baseUrl}}/viajes/{{viajeId}}/regreso
+Authorization: Bearer {{conductor}}
+Content-Type: application/json
+
+{
+  "km_regreso": 15120
+}
+
+
+###############################################################################
+# REGLAS DE NEGOCIO (deberian responder error)
+###############################################################################
+
+### El conductor intenta crear un vehiculo -> 403
+POST {{baseUrl}}/vehiculos
+Authorization: Bearer {{conductor}}
+Content-Type: application/json
+
+{
+  "patente": "ZZ999ZZ",
+  "marca": "X",
+  "modelo": "Y",
+  "cantidad_maxima": 100,
+  "vencimiento_vtv": "2027-01-01"
+}
+
+### Eliminar un viaje finalizado -> 409
+DELETE {{baseUrl}}/viajes/{{viajeId}}
+Authorization: Bearer {{admin}}
+
+### Sin token -> 401
+GET {{baseUrl}}/viajes
