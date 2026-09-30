@@ -4,7 +4,7 @@ Sistema de gestión de flota para logística farmacéutica: vehículos, conducto
 
 Trabajo Grupal Integrador — Desarrollo de Software 2026, UTN FRLP, comisión S31.
 
-**Integrantes:** Santiago Ballario, Stefano Diaz, Gianluca Baiza, Juan Cruz Hillar.
+**Integrantes:** Santiago Ballario, Stefano Diaz, Gianluca Baiza.
 
 ## Stack
 
