@@ -21,7 +21,7 @@ Trabajo Grupal Integrador — Desarrollo de Software 2026, UTN FRLP, comisión S
 ```
 eflet/
 ├── backend/    API REST (Express + Sequelize)
-└── frontend/   Interfaz web (React + Vite) — en desarrollo
+└── frontend/   Interfaz web (React + Vite)
 ```
 
 ## Requisitos
@@ -44,6 +44,18 @@ Verificar que funciona: `GET http://localhost:3000/api/health` debe responder `{
 Usuario de prueba: `admin@eflet.com` / `Admin123!`
 
 Endpoints, reglas de negocio y cómo probar la API: ver [backend/README.md](backend/README.md).
+
+## Cómo levantar el frontend
+
+Con el backend ya corriendo, en otra terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev              # http://localhost:5173
+```
+
+En `backend/.env`, `CORS_ORIGIN` tiene que ser `http://localhost:5173`. Estructura y pantallas: ver [frontend/README.md](frontend/README.md).
 
 ## Flujo de trabajo con Git
 
