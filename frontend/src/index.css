@@ -1,0 +1,147 @@
+/* Paleta y tipografia del documento de Diseno de Interfaces (entrega 2). */
+:root {
+  --primario: #3776b6;
+  --primario-oscuro: #2b5d91;
+  --fondo: #f3f4f6;
+  --blanco: #ffffff;
+  --texto: #1f2937;
+  --texto-suave: #6b7280;
+  --borde: #e5e7eb;
+  --exito: #10b981;
+  --advertencia: #f59e0b;
+  --error: #ef4444;
+  --gradiente: linear-gradient(135deg, #3776b6 0%, #6d5bd0 100%);
+  --radio: 10px;
+  --sombra: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
+  font-family: 'Roboto', system-ui, sans-serif;
+  color: var(--texto);
+  background: var(--fondo);
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; background: var(--fondo); }
+h1, h2, h3 { margin: 0 0 0.75rem; font-weight: 500; }
+h1 { font-size: 1.6rem; }
+h2 { font-size: 1.2rem; }
+a { color: var(--primario); }
+button, input, select, textarea { font: inherit; }
+
+/* ---------- Layout del Administrador ---------- */
+.layout { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 230px; flex-shrink: 0; background: var(--blanco); border-right: 1px solid var(--borde);
+  display: flex; flex-direction: column; padding: 1.25rem 0.75rem;
+  position: sticky; top: 0; height: 100vh;
+}
+.sidebar .marca { font-size: 1.4rem; font-weight: 700; color: var(--primario); padding: 0 0.75rem 1.25rem; letter-spacing: 1px; }
+.sidebar nav { display: flex; flex-direction: column; gap: 0.25rem; flex: 1; }
+.nav-link {
+  display: flex; align-items: center; gap: 0.6rem; padding: 0.65rem 0.75rem; border-radius: 8px;
+  color: var(--texto); text-decoration: none; background: none; border: none; cursor: pointer; text-align: left;
+}
+.nav-link:hover { background: var(--fondo); }
+.nav-link.active { background: var(--primario); color: var(--blanco); }
+.sidebar .usuario { font-size: 0.85rem; color: var(--texto-suave); padding: 0.75rem; border-top: 1px solid var(--borde); }
+.contenido { flex: 1; min-width: 0; padding: 1.5rem; max-width: 1200px; margin: 0 auto; }
+
+/* En celular la sidebar se convierte en una barra inferior (mobile-first del documento). */
+.bottom-nav { display: none; }
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .contenido { padding: 1rem 1rem 5rem; }
+  .bottom-nav {
+    display: flex; position: fixed; bottom: 0; left: 0; right: 0; background: var(--blanco);
+    border-top: 1px solid var(--borde); justify-content: space-around; padding: 0.4rem 0; z-index: 10;
+  }
+  .bottom-nav .nav-link { flex-direction: column; gap: 0.1rem; font-size: 0.72rem; padding: 0.4rem; }
+}
+
+/* ---------- Layout del Conductor (pensado para celular) ---------- */
+.conductor-header {
+  background: var(--gradiente); color: var(--blanco); padding: 1rem;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.conductor-header .marca { font-weight: 700; letter-spacing: 1px; font-size: 1.2rem; }
+.conductor-header .btn-secundario { background: transparent; color: var(--blanco); border-color: rgba(255, 255, 255, 0.6); }
+.conductor-main { max-width: 600px; margin: 0 auto; padding: 1rem; }
+
+/* ---------- Componentes ---------- */
+.encabezado { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.encabezado h1 { margin: 0; }
+
+.card { background: var(--blanco); border-radius: var(--radio); box-shadow: var(--sombra); padding: 1.25rem; margin-bottom: 1rem; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+.stat { background: var(--blanco); border-radius: var(--radio); box-shadow: var(--sombra); padding: 1.25rem; border-left: 4px solid var(--primario); }
+.stat .valor { font-size: 2rem; font-weight: 700; }
+.stat .titulo { color: var(--texto-suave); font-size: 0.9rem; }
+.stat.exito { border-left-color: var(--exito); }
+.stat.advertencia { border-left-color: var(--advertencia); }
+.stat.error { border-left-color: var(--error); }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; border: 1px solid transparent;
+  border-radius: 8px; padding: 0.55rem 1rem; cursor: pointer; font-weight: 500; text-decoration: none;
+  background: var(--primario); color: var(--blanco);
+}
+.btn:hover { background: var(--primario-oscuro); }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-secundario { background: var(--blanco); color: var(--texto); border-color: var(--borde); }
+.btn-secundario:hover { background: var(--fondo); }
+.btn-peligro { background: var(--error); }
+.btn-peligro:hover { background: #dc2626; }
+.btn-exito { background: var(--exito); }
+.btn-exito:hover { background: #059669; }
+.btn-chico { padding: 0.3rem 0.6rem; font-size: 0.85rem; }
+/* Botones grandes para usar con el dedo (vista del conductor). */
+.btn-grande { width: 100%; padding: 1rem; font-size: 1.05rem; border-radius: 12px; }
+.acciones { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+.tabla-contenedor { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
+th, td { text-align: left; padding: 0.7rem 0.6rem; border-bottom: 1px solid var(--borde); white-space: nowrap; }
+th { color: var(--texto-suave); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; }
+tbody tr:hover td { background: #fafafa; }
+
+.badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.78rem; font-weight: 500; white-space: nowrap; }
+.badge-exito { background: #d1fae5; color: #065f46; }
+.badge-advertencia { background: #fef3c7; color: #92400e; }
+.badge-error { background: #fee2e2; color: #991b1b; }
+.badge-info { background: #dbeafe; color: #1e40af; }
+.badge-neutro { background: var(--fondo); color: var(--texto-suave); }
+
+.alerta { padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; }
+.alerta-error { background: #fee2e2; color: #991b1b; }
+.alerta-exito { background: #d1fae5; color: #065f46; }
+.alerta-advertencia { background: #fef3c7; color: #92400e; }
+
+.formulario { display: grid; gap: 1rem; }
+.fila { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+.campo { display: flex; flex-direction: column; gap: 0.3rem; }
+.campo label { font-size: 0.88rem; font-weight: 500; }
+.campo input, .campo select, .campo textarea {
+  padding: 0.6rem 0.7rem; border: 1px solid var(--borde); border-radius: 8px; background: var(--blanco); width: 100%;
+}
+.campo input:focus, .campo select:focus { outline: 2px solid var(--primario); outline-offset: -1px; }
+
+.cargando, .vacio { padding: 2rem; text-align: center; color: var(--texto-suave); }
+.texto-suave { color: var(--texto-suave); }
+.chico { font-size: 0.85rem; }
+
+/* ---------- Login ---------- */
+.login-fondo { min-height: 100vh; background: var(--gradiente); display: grid; place-items: center; padding: 1rem; }
+.login-card { background: var(--blanco); border-radius: 16px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2); padding: 2rem; width: 100%; max-width: 380px; }
+.login-card .marca { text-align: center; font-size: 2rem; font-weight: 700; color: var(--primario); letter-spacing: 2px; }
+.login-card .subtitulo { text-align: center; color: var(--texto-suave); margin-bottom: 1.5rem; }
+
+/* ---------- Hoja de ruta ---------- */
+.destino { display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.85rem 0; border-bottom: 1px solid var(--borde); }
+.destino:last-child { border-bottom: none; }
+.destino .orden {
+  width: 30px; height: 30px; border-radius: 50%; background: var(--primario); color: var(--blanco);
+  display: grid; place-items: center; font-weight: 700; flex-shrink: 0;
+}
+.destino .detalle { flex: 1; min-width: 0; }
+.parada-form { display: grid; grid-template-columns: 1fr 110px auto; gap: 0.5rem; align-items: end; margin-bottom: 0.5rem; }
+@media (max-width: 600px) { .parada-form { grid-template-columns: 1fr 80px auto; } }
+.datos { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; }
+.datos .etiqueta { font-size: 0.8rem; color: var(--texto-suave); }
