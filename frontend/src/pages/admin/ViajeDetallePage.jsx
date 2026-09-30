@@ -1,0 +1,141 @@
+import { useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router';
+import { useFetch } from '@/hooks/use-fetch';
+import { agregarDestino, eliminarDestino, eliminarViaje, obtenerViaje } from '@/services/viajes';
+import { Alerta } from '@/components/ui/Alerta';
+import { Badge } from '@/components/ui/Badge';
+import { Campo } from '@/components/ui/Campo';
+import { Cargando } from '@/components/ui/Cargando';
+import { ListaDestinos } from '@/components/ListaDestinos';
+import { descripcionVehiculo, formatearFechaHora, nombreConductor } from '@/utils/formato';
+
+function Dato({ etiqueta, children }) {
+  return (
+    <div>
+      <div className="etiqueta">{etiqueta}</div>
+      <div>{children ?? '-'}</div>
+    </div>
+  );
+}
+
+export function ViajeDetallePage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { data: viaje, error, cargando, recargar } = useFetch(() => obtenerViaje(id), [id]);
+
+  const [nuevaParada, setNuevaParada] = useState({ direccion_farmacia: '', cantidad_bultos: 1 });
+  const [errorAccion, setErrorAccion] = useState('');
+
+  if (cargando) return <Cargando />;
+  if (error) return <Alerta>{error.message}</Alerta>;
+
+  // La hoja de ruta solo se puede modificar mientras el camion no salio.
+  const editable = viaje.EstadoViaje.descripcion === 'En Depósito';
+
+  // Envuelve cada accion: limpia el error, la ejecuta y muestra el mensaje si falla.
+  async function ejecutar(accion) {
+    setErrorAccion('');
+    try {
+      await accion();
+    } catch (err) {
+      setErrorAccion(err.message);
+    }
+  }
+
+  function handleEliminarViaje() {
+    if (!window.confirm(`¿Eliminar la hoja de ruta #${viaje.id}?`)) return;
+    ejecutar(async () => {
+      await eliminarViaje(viaje.id);
+      navigate('/viajes');
+    });
+  }
+
+  function handleQuitarDestino(destino) {
+    ejecutar(async () => {
+      await eliminarDestino(viaje.id, destino.id);
+      recargar();
+    });
+  }
+
+  function handleAgregarDestino(e) {
+    e.preventDefault();
+    ejecutar(async () => {
+      await agregarDestino(viaje.id, { ...nuevaParada, cantidad_bultos: Number(nuevaParada.cantidad_bultos) });
+      setNuevaParada({ direccion_farmacia: '', cantidad_bultos: 1 });
+      recargar();
+    });
+  }
+
+  return (
+    <>
+      <div className="encabezado">
+        <h1>
+          Hoja de ruta #{viaje.id} <Badge estado={viaje.EstadoViaje.descripcion} />
+        </h1>
+        <div className="acciones">
+          <Link to="/viajes" className="btn btn-secundario">
+            Volver
+          </Link>
+          {editable && (
+            <button className="btn btn-peligro" onClick={handleEliminarViaje}>
+              Eliminar
+            </button>
+          )}
+        </div>
+      </div>
+
+      <Alerta>{errorAccion}</Alerta>
+
+      <div className="card datos">
+        <Dato etiqueta="Vehículo">{descripcionVehiculo(viaje.Vehiculo)}</Dato>
+        <Dato etiqueta="Conductor">{nombreConductor(viaje.Conductor)}</Dato>
+        <Dato etiqueta="Creado">{formatearFechaHora(viaje.fecha_creacion)}</Dato>
+        <Dato etiqueta="Salida">
+          {viaje.fecha_salida && `${formatearFechaHora(viaje.fecha_salida)} · ${viaje.km_salida} km`}
+        </Dato>
+        <Dato etiqueta="Regreso">
+          {viaje.fecha_regreso && `${formatearFechaHora(viaje.fecha_regreso)} · ${viaje.km_regreso} km`}
+        </Dato>
+        <Dato etiqueta="Km recorridos">{viaje.km_recorridos}</Dato>
+      </div>
+
+      <div className="card">
+        <h2>Destinos</h2>
+        <ListaDestinos
+          destinos={viaje.Destinos}
+          acciones={
+            // Solo en deposito, y nunca el ultimo (un viaje necesita al menos un destino).
+            editable && viaje.Destinos.length > 1
+              ? (d) => (
+                  <button className="btn btn-secundario btn-chico" onClick={() => handleQuitarDestino(d)}>
+                    Quitar
+                  </button>
+                )
+              : undefined
+          }
+        />
+
+        {editable && (
+          <form className="parada-form" onSubmit={handleAgregarDestino} style={{ marginTop: '1rem' }}>
+            <Campo
+              label="Nueva parada - Dirección"
+              value={nuevaParada.direccion_farmacia}
+              onChange={(e) => setNuevaParada({ ...nuevaParada, direccion_farmacia: e.target.value })}
+              maxLength={200}
+              required
+            />
+            <Campo
+              label="Bultos"
+              type="number"
+              min="1"
+              value={nuevaParada.cantidad_bultos}
+              onChange={(e) => setNuevaParada({ ...nuevaParada, cantidad_bultos: e.target.value })}
+              required
+            />
+            <button className="btn">+ Añadir</button>
+          </form>
+        )}
+      </div>
+    </>
+  );
+}
