@@ -17,8 +17,6 @@ const VACIO = {
   disponibilidad: 'Disponible',
 };
 
-// Crear: se cargan los datos de login (email y contrasena) + persona + licencia.
-// Editar: el backend no deja cambiar email, contrasena ni DNI, asi que no se muestran.
 export function ConductorFormPage() {
   const { id } = useParams();
   const esEdicion = Boolean(id);
@@ -28,6 +26,7 @@ export function ConductorFormPage() {
   const [cargando, setCargando] = useState(esEdicion);
   const [error, setError] = useState('');
   const [enviando, setEnviando] = useState(false);
+  const [mostrarPassword, setMostrarPassword] = useState(false);
 
   useEffect(() => {
     if (!esEdicion) return;
@@ -62,13 +61,13 @@ export function ConductorFormPage() {
         const { nombre, apellido, telefono, nro_licencia, vencimiento_licencia, disponibilidad } = form;
         await actualizarConductor(id, { nombre, apellido, telefono, nro_licencia, vencimiento_licencia, disponibilidad });
       } else {
-        // eslint-disable-next-line no-unused-vars -- la disponibilidad inicial la pone el backend
-        const { disponibilidad, ...datos } = form;
-        await crearConductor(datos);
+        const datosEnvio = { ...form };
+        delete datosEnvio.disponibilidad;
+        await crearConductor(datosEnvio);
       }
       navigate('/conductores');
     } catch (err) {
-      setError(err.message); // ej: 409 "Ya existe un registro con esos datos."
+      setError(err.message);
       setEnviando(false);
     }
   }
@@ -104,7 +103,6 @@ export function ConductorFormPage() {
             <Campo label="Disponibilidad" as="select" name="disponibilidad" value={form.disponibilidad} onChange={handleChange}>
               <option>Disponible</option>
               <option>No disponible</option>
-              {/* "En viaje" lo maneja el sistema al registrar salida/regreso */}
               {form.disponibilidad === 'En viaje' && <option>En viaje</option>}
             </Campo>
           )}
@@ -122,16 +120,27 @@ export function ConductorFormPage() {
             disabled={esEdicion}
           />
           {!esEdicion && (
-            <Campo
-              label="Contraseña inicial"
-              name="password"
-              type="password"
-              autoComplete="new-password"
-              minLength={8}
-              value={form.password}
-              onChange={handleChange}
-              required
-            />
+            <div>
+              <Campo
+                label="Contraseña inicial"
+                name="password"
+                type={mostrarPassword ? "text" : "password"}
+                autoComplete="new-password"
+                minLength={8}
+                value={form.password}
+                onChange={handleChange}
+                required
+              />
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-5px' }}>
+                <button 
+                  type="button" 
+                  onClick={() => setMostrarPassword(!mostrarPassword)}
+                  style={{ background: 'none', border: 'none', color: '#3776B6', cursor: 'pointer', fontSize: '0.85rem' }}
+                >
+                  {mostrarPassword ? 'Ocultar contraseña' : '👁 Mostrar contraseña'}
+                </button>
+              </div>
+            </div>
           )}
         </div>
 

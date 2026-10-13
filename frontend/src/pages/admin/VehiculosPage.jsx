@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/Badge';
 import { Cargando } from '@/components/ui/Cargando';
 import { diasHasta, formatearFecha } from '@/utils/formato';
 
-// Aviso de VTV: vencida (rojo) o por vencer en los proximos 30 dias (amarillo).
 function EstadoVtv({ fecha }) {
   const dias = diasHasta(fecha);
   if (dias < 0) return <span className="badge badge-error">Vencida</span>;
@@ -18,23 +17,43 @@ function EstadoVtv({ fecha }) {
 export function VehiculosPage() {
   const { data: vehiculos, error, cargando, recargar } = useFetch(listarVehiculos);
   const [errorAccion, setErrorAccion] = useState('');
+  const [mensajeExito, setMensajeExito] = useState('');
+  const [busqueda, setBusqueda] = useState('');
 
   async function handleEliminar(vehiculo) {
     if (!window.confirm(`¿Dar de baja el vehículo ${vehiculo.patente}?`)) return;
     setErrorAccion('');
+    setMensajeExito('');
     try {
       await eliminarVehiculo(vehiculo.id);
+      setMensajeExito('Vehículo eliminado exitosamente.');
       recargar();
+      setTimeout(() => setMensajeExito(''), 3000);
     } catch (err) {
-      // 409 si esta asignado a un viaje sin finalizar
       setErrorAccion(err.message);
     }
   }
 
+  const vehiculosFiltrados = vehiculos?.filter((v) =>
+    v.patente.toLowerCase().includes(busqueda.toLowerCase())
+  );
+
   return (
     <>
-      <div className="encabezado">
-        <h1>Gestión de Flota</h1>
+      <div className="encabezado" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+          <h1 style={{ margin: 0 }}>Gestión de Flota</h1>
+          <div style={{ position: 'relative' }}>
+            <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }}>🔍</span>
+            <input
+              type="text"
+              placeholder="Buscar por patente..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              style={{ padding: '0.5rem 0.5rem 0.5rem 2rem', borderRadius: '4px', border: '1px solid #ccc', minWidth: '250px' }}
+            />
+          </div>
+        </div>
         <Link to="/vehiculos/nuevo" className="btn">
           + Nuevo vehículo
         </Link>
@@ -42,12 +61,25 @@ export function VehiculosPage() {
 
       <Alerta>{errorAccion}</Alerta>
 
+      {mensajeExito && (
+        <div style={{ backgroundColor: '#10B981', color: 'white', padding: '0.75rem', borderRadius: '4px', marginBottom: '1rem', fontWeight: 'bold' }}>
+          {mensajeExito}
+        </div>
+      )}
+
       <div className="card">
         {cargando && <Cargando />}
         {error && <Alerta>{error.message}</Alerta>}
-        {vehiculos?.length === 0 && <div className="vacio">Todavía no hay vehículos cargados.</div>}
+        
+        {!cargando && vehiculos?.length === 0 && (
+          <div className="vacio">Todavía no hay vehículos cargados.</div>
+        )}
 
-        {vehiculos?.length > 0 && (
+        {vehiculos?.length > 0 && vehiculosFiltrados?.length === 0 && (
+          <div className="vacio">No se encontraron resultados para "{busqueda}".</div>
+        )}
+
+        {vehiculosFiltrados?.length > 0 && (
           <div className="tabla-contenedor">
             <table>
               <thead>
@@ -61,8 +93,7 @@ export function VehiculosPage() {
                 </tr>
               </thead>
               <tbody>
-                {/* key: React la usa para saber que fila es cual al re-renderizar */}
-                {vehiculos.map((v) => (
+                {vehiculosFiltrados.map((v) => (
                   <tr key={v.id}>
                     <td>
                       <strong>{v.patente}</strong>
