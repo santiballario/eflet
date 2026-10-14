@@ -134,11 +134,41 @@ button, input, select, textarea { font: inherit; }
 .btn-grande { width: 100%; padding: 1rem; font-size: 1.05rem; border-radius: 12px; }
 .acciones { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 
+/* ---------- Efectos al pasar el mouse (hover) ----------
+ * Para que se note que algo es clickeable: se agranda apenas, se oscurece un
+ * poco el color y aparece una sombra. La transicion lo hace suave.
+ */
+.btn, .nav-link, .stat, a.card, tbody tr {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.btn:hover:not(:disabled) { transform: translateY(-1px) scale(1.02); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12); }
+.btn:active:not(:disabled) { transform: scale(0.98); box-shadow: none; }   /* al hacer clic, se "hunde" */
+.btn-grande:hover:not(:disabled) { transform: translateY(-1px); }          /* ocupa todo el ancho: no se agranda */
+.nav-link:hover { transform: translateX(2px); }
+.nav-link.active:hover { transform: none; background: var(--primario-oscuro); }
+/* Tarjetas que son links (Panel de Control y viajes del conductor): se levantan */
+a.stat:hover, a.card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); }
+/* Botones claros sobre el degradé del conductor: no tienen que ponerse blancos */
+.conductor-header .btn-secundario:hover { background: rgba(255, 255, 255, 0.18); }
+a:not(.btn):not(.nav-link):not(.stat):not(.card):hover { text-decoration-thickness: 2px; }
+
+/* Foco visible para quien navega con teclado (Tab): mismo aviso que el mouse */
+.btn:focus-visible, .nav-link:focus-visible, a:focus-visible {
+  outline: 3px solid var(--primario); outline-offset: 2px;
+}
+
+/* Si la persona configuro su sistema para reducir animaciones, los cambios son
+   instantaneos (sin transicion). El leve agrandado se mantiene: es de 1 a 3 px,
+   no es el tipo de movimiento que esa opcion busca evitar. */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+
 .tabla-contenedor { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
 th, td { text-align: left; padding: 0.7rem 0.6rem; border-bottom: 1px solid var(--borde); white-space: nowrap; }
 th { color: var(--texto-suave); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; }
-tbody tr:hover td { background: #fafafa; }
+tbody tr:hover td { background: #eef4fb; }   /* celeste suave: se ve que fila esta bajo el mouse */
 
 .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.78rem; font-weight: 500; white-space: nowrap; }
 .badge-exito { background: #d1fae5; color: #065f46; }
