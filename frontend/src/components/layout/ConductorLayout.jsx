@@ -12,9 +12,14 @@ export function ConductorLayout() {
         <Link to="/mis-viajes" className="marca" style={{ color: 'inherit', textDecoration: 'none' }}>
           EFLET
         </Link>
-        <button className="btn btn-secundario btn-chico" onClick={logout}>
-          Salir
-        </button>
+        <div className="acciones">
+          <Link to="/mi-cuenta" className="btn btn-secundario btn-chico">
+            Mi cuenta
+          </Link>
+          <button className="btn btn-secundario btn-chico" onClick={logout}>
+            Salir
+          </button>
+        </div>
       </header>
       <main className="conductor-main">
         <Outlet />

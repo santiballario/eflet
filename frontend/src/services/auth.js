@@ -10,3 +10,8 @@ export async function getMe() {
   const { usuario } = await apiRequest('/api/auth/me');
   return usuario;
 }
+
+// PUT /api/auth/password -> el usuario logueado cambia su contraseña
+export function cambiarPassword({ password_actual, password_nueva }) {
+  return apiRequest('/api/auth/password', { method: 'PUT', body: { password_actual, password_nueva } });
+}

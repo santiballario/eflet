@@ -11,4 +11,13 @@ const loginValidator = [
     .notEmpty().withMessage('La contraseña es obligatoria.'),
 ];
 
-module.exports = { loginValidator };
+const cambiarPasswordValidator = [
+  body('password_actual')
+    .notEmpty().withMessage('La contraseña actual es obligatoria.'),
+  body('password_nueva')
+    .isLength({ min: 8 }).withMessage('La nueva contraseña debe tener al menos 8 caracteres.')
+    .custom((nueva, { req }) => nueva !== req.body.password_actual)
+    .withMessage('La nueva contraseña tiene que ser distinta de la actual.'),
+];
+
+module.exports = { loginValidator, cambiarPasswordValidator };

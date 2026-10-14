@@ -68,6 +68,7 @@ Todas las rutas empiezan con `/api` y, salvo `health` y `login`, requieren el he
 | GET | `/health` | público | Estado de la API |
 | POST | `/auth/login` | público | `{ email, password }` → `{ token, usuario }` (máx. 10 intentos cada 15 min) |
 | GET | `/auth/me` | ambos | Datos del usuario del token |
+| PUT | `/auth/password` | ambos | `{ password_actual, password_nueva }` → cambia la contraseña propia (mín. 8 caracteres, distinta de la actual; máx. 10 intentos cada 15 min) |
 
 ### Vehículos
 | Método | Ruta | Rol | Descripción |
@@ -137,4 +138,4 @@ Ciclo de vida: **En Depósito** → **En Viaje** → **Entregado** → **Finaliz
 ## Probar la API
 
 - **A mano:** `api.http`, con la extensión REST Client de VS Code. Trae todos los pedidos en orden, incluidos casos de error.
-- **Automático:** `npm test` corre 52 tests (auth, vehículos, conductores y el ciclo completo de un viaje) contra la base de tests.
+- **Automático:** `npm test` corre 57 tests (auth, cambio de contraseña, vehículos, conductores y el ciclo completo de un viaje) contra la base de tests.

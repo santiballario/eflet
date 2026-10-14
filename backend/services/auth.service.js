@@ -1,7 +1,7 @@
 // Logica de negocio de autenticacion. Separada del controller para que
 // este ultimo solo se ocupe de "traducir" HTTP <-> service.
 const db = require('../models');
-const { comparePassword } = require('../lib/password');
+const { comparePassword, hashPassword } = require('../lib/password');
 const { generarToken } = require('../lib/jwt');
 const { AppError } = require('../lib/errors');
 
@@ -33,4 +33,24 @@ async function login(email, password) {
   };
 }
 
-module.exports = { login };
+// El usuario logueado cambia su propia contraseña. Se pide la actual para
+// que alguien que encuentre la sesion abierta no pueda cambiarla.
+async function cambiarPassword(usuarioId, passwordActual, passwordNueva) {
+  const usuario = await db.Usuario.findByPk(usuarioId);
+  if (!usuario) {
+    throw new AppError('Usuario no encontrado.', 404);
+  }
+
+  const passwordOk = await comparePassword(passwordActual, usuario.password_hash);
+  if (!passwordOk) {
+    // 400 y no 401: el token es valido, lo que esta mal es un dato del
+    // formulario. (Un 401 haria que el frontend cierre la sesion.)
+    throw new AppError('La contraseña actual es incorrecta.', 400);
+  }
+
+  usuario.password_hash = await hashPassword(passwordNueva);
+  usuario.modificado_por = usuarioId;
+  await usuario.save();
+}
+
+module.exports = { login, cambiarPassword };
