@@ -1,22 +1,25 @@
 import { NavLink, Outlet } from 'react-router';
+import { CircleUser, LayoutDashboard, LogOut, Route, Truck, Users } from 'lucide-react';
 import { useAuth } from '@/auth/use-auth';
 
 // Menu lateral del documento de diseno: Panel de Control, Hojas de Ruta,
 // Gestion de Flota y Conductores. En celular se muestra abajo (bottom nav).
+// Los iconos son de lucide-react (SVG): se ven igual en todos los sistemas,
+// a diferencia de los emojis, y toman el color del texto.
 const MENU = [
-  { to: '/', texto: 'Panel de Control', icono: '📊', end: true },
-  { to: '/viajes', texto: 'Hojas de Ruta', icono: '🗺️' },
-  { to: '/vehiculos', texto: 'Gestión de Flota', icono: '🚚' },
-  { to: '/conductores', texto: 'Conductores', icono: '👤' },
+  { to: '/', texto: 'Panel de Control', Icono: LayoutDashboard, end: true },
+  { to: '/viajes', texto: 'Hojas de Ruta', Icono: Route },
+  { to: '/vehiculos', texto: 'Gestión de Flota', Icono: Truck },
+  { to: '/conductores', texto: 'Conductores', Icono: Users },
 ];
 
 function Links() {
   // NavLink agrega la clase "active" sola cuando la URL coincide.
   // `end` hace que "/" no quede activo en todas las paginas.
-  return MENU.map((item) => (
-    <NavLink key={item.to} to={item.to} end={item.end} className="nav-link">
-      <span aria-hidden="true">{item.icono}</span>
-      {item.texto}
+  return MENU.map(({ to, texto, Icono, end }) => (
+    <NavLink key={to} to={to} end={end} className="nav-link">
+      <Icono size={18} aria-hidden="true" />
+      {texto}
     </NavLink>
   ));
 }
@@ -34,10 +37,12 @@ export function AdminLayout() {
         <div className="usuario">
           <div>{usuario.email ?? usuario.rol}</div>
           <NavLink to="/mi-cuenta" className="nav-link">
+            <CircleUser size={18} aria-hidden="true" />
             Mi cuenta
           </NavLink>
           <button className="nav-link" onClick={logout}>
-            ↩ Cerrar sesión
+            <LogOut size={18} aria-hidden="true" />
+            Cerrar sesión
           </button>
         </div>
       </aside>
@@ -50,7 +55,7 @@ export function AdminLayout() {
       <nav className="bottom-nav">
         <Links />
         <button className="nav-link" onClick={logout}>
-          <span aria-hidden="true">↩</span>
+          <LogOut size={18} aria-hidden="true" />
           Salir
         </button>
       </nav>

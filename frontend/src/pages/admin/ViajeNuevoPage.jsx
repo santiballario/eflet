@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
+import { Trash2 } from 'lucide-react';
 import { useFetch } from '@/hooks/use-fetch';
 import { listarVehiculos } from '@/services/vehiculos';
 import { listarConductores } from '@/services/conductores';
@@ -119,8 +120,9 @@ export function ViajeNuevoPage() {
               onClick={() => quitarParada(i)}
               disabled={paradas.length === 1}
               aria-label={`Quitar parada ${i + 1}`}
+              title="Quitar parada"
             >
-              ✕
+              <Trash2 size={18} aria-hidden="true" />
             </button>
           </div>
         ))}

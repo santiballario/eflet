@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router';
+import { ArrowLeft, Check, X } from 'lucide-react';
 import { useFetch } from '@/hooks/use-fetch';
 import { obtenerViaje, registrarEntrega, registrarRegreso, registrarSalida } from '@/services/viajes';
 import { listarMotivosNoEntrega } from '@/services/catalogos';
@@ -98,10 +99,12 @@ export function HojaDeRutaPage() {
           disabled={enviando}
           onClick={() => ejecutar(() => registrarEntrega(viaje.id, destino.id, 'Entregado'))}
         >
-          ✓ Entregado
+          <Check size={20} aria-hidden="true" />
+          Entregado
         </button>
         <button className="btn btn-peligro btn-grande" disabled={enviando} onClick={() => setNoEntregado(destino)}>
-          ✕ No entregado
+          <X size={20} aria-hidden="true" />
+          No entregado
         </button>
       </div>
     );
@@ -109,8 +112,9 @@ export function HojaDeRutaPage() {
 
   return (
     <>
-      <Link to="/mis-viajes" className="chico">
-        ← Mis hojas de ruta
+      <Link to="/mis-viajes" className="chico link-volver">
+        <ArrowLeft size={16} aria-hidden="true" />
+        Mis hojas de ruta
       </Link>
       <div className="encabezado" style={{ marginTop: '0.5rem' }}>
         <h1>Hoja de ruta #{viaje.id}</h1>
