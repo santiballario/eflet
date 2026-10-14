@@ -15,21 +15,51 @@ Trabajo Grupal Integrador — Desarrollo de Software 2026, UTN FRLP, comisión S
 | Base de datos | MySQL 8 |
 | Autenticación | JWT (Bearer) + bcrypt, roles Administrador / Conductor |
 | Frontend | React + Vite |
+| Contenedores | Docker + docker-compose |
 
 ## Estructura
 
 ```
 eflet/
-├── backend/    API REST (Express + Sequelize)
-└── frontend/   Interfaz web (React + Vite)
+├── backend/             API REST (Express + Sequelize)
+├── frontend/            Interfaz web (React + Vite)
+└── docker-compose.yml   Levanta MySQL, backend y frontend juntos
 ```
 
-## Requisitos
+## Levantar con Docker (recomendado)
+
+Requisito: [Docker Desktop](https://www.docker.com/products/docker-desktop/) abierto. No hace falta instalar Node ni MySQL.
+
+```bash
+docker compose up --build -d
+```
+
+La primera vez tarda unos minutos (descarga las imágenes e instala las dependencias). Después abrir http://localhost:5173.
+
+Usuario de prueba: `admin@eflet.com` / `Admin123!`
+
+Levanta tres contenedores:
+
+| Servicio | Qué hace | Puerto |
+|---|---|---|
+| `db` | MySQL 8. Los datos se guardan en un volumen y sobreviven a los reinicios | — |
+| `backend` | La API. Espera a que MySQL esté listo, aplica las migraciones y carga los seeders | 3000 |
+| `frontend` | El frontend compilado, servido con nginx | 5173 |
+
+| Para | Comando |
+|---|---|
+| Ver los mensajes del backend | `docker compose logs backend` |
+| Apagar | `docker compose down` |
+| Borrar la base y empezar de cero | `docker compose down -v` |
+
+## Levantar sin Docker
+
+### Requisitos
 
 - Node.js 20 o superior
 - MySQL 8 corriendo en local
 
-## Cómo levantar el backend
+### Backend
 
 ```bash
 cd backend
@@ -45,7 +75,7 @@ Usuario de prueba: `admin@eflet.com` / `Admin123!`
 
 Endpoints, reglas de negocio y cómo probar la API: ver [backend/README.md](backend/README.md).
 
-## Cómo levantar el frontend
+### Frontend
 
 Con el backend ya corriendo, en otra terminal:
 
