@@ -82,13 +82,36 @@ button, input, select, textarea { font: inherit; }
 .encabezado h1 { margin: 0; }
 
 .card { background: var(--blanco); border-radius: var(--radio); box-shadow: var(--sombra); padding: 1.25rem; margin-bottom: 1rem; }
-.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
-.stat { background: var(--blanco); border-radius: var(--radio); box-shadow: var(--sombra); padding: 1.25rem; border-left: 4px solid var(--primario); }
-.stat .valor { font-size: 2rem; font-weight: 700; }
+/* Encabezado del Panel de Control (como el mockup): degradé con el titulo en blanco.
+   Blanco sobre el degradé: 4,7:1 en el extremo azul y 5,2:1 en el violeta. */
+.bienvenida {
+  background: var(--gradiente); color: var(--blanco); border-radius: var(--radio);
+  padding: 1.5rem; margin-bottom: 1rem;
+  display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;
+}
+.bienvenida h1 { margin: 0; font-weight: 700; }
+.bienvenida p { margin: 0.25rem 0 0; }
+/* .btn.btn-claro (dos clases) para que le gane al fondo azul de .btn, definido mas abajo */
+.btn.btn-claro { background: var(--blanco); color: var(--primario); }
+.btn.btn-claro:hover { background: #e8f0f9; }
+
+/* Tarjetas de numeros: todas iguales; el color solo aparece si hay algo para mirar */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem; }
+.stat {
+  display: block; background: var(--blanco); border-radius: var(--radio); box-shadow: var(--sombra);
+  padding: 1.25rem; color: inherit; text-decoration: none;
+}
 .stat .titulo { color: var(--texto-suave); font-size: 0.9rem; }
-.stat.exito { border-left-color: var(--exito); }
-.stat.advertencia { border-left-color: var(--advertencia); }
-.stat.error { border-left-color: var(--error); }
+.stat .valor { font-size: 2rem; font-weight: 700; color: var(--primario); margin-top: 0.25rem; }
+.stat .detalle { color: var(--texto-suave); font-size: 0.8rem; margin-top: 0.25rem; }
+.stat.alerta .valor { color: var(--error-oscuro); }
+@media (max-width: 600px) {
+  .stats { gap: 0.5rem; }
+  .stat { padding: 0.75rem; text-align: center; }
+  .stat .titulo { font-size: 0.75rem; }
+  .stat .valor { font-size: 1.4rem; }
+  .stat .detalle { display: none; }
+}
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; border: 1px solid transparent;
