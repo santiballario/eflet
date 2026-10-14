@@ -13,7 +13,7 @@ npm run setup           # crea la base, corre las migraciones y carga los seeder
 npm run dev             # API en http://localhost:3000
 ```
 
-Usuario de prueba que crea el seeder: `admin@eflet.com` / `Admin123!`.
+Usuario de prueba que crea el seeder: `admin@eflet.com` / `Admin123!`. Además, el seeder `datos-demo` carga vehículos, conductores y viajes de ejemplo (ver la tabla de usuarios en el [README principal](../README.md#usuarios-y-datos-de-prueba)).
 
 ## Scripts
 
