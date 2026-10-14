@@ -20,4 +20,12 @@ const cambiarPasswordValidator = [
     .withMessage('La nueva contraseña tiene que ser distinta de la actual.'),
 ];
 
-module.exports = { loginValidator, cambiarPasswordValidator };
+const actualizarPerfilValidator = [
+  body('telefono')
+    .trim()
+    .notEmpty().withMessage('El teléfono es obligatorio.')
+    .isLength({ max: 20 }).withMessage('El teléfono no puede tener más de 20 caracteres.')
+    .matches(/^[0-9+\-\s()]+$/).withMessage('El teléfono solo puede tener números, espacios, guiones, paréntesis y +.'),
+];
+
+module.exports = { loginValidator, cambiarPasswordValidator, actualizarPerfilValidator };

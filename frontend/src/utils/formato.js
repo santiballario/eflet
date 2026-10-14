@@ -27,6 +27,12 @@ export function nombreConductor(conductor) {
   return persona ? `${persona.nombre} ${persona.apellido}` : '-';
 }
 
+// Para el usuario logueado (login / perfil), que trae nombre y apellido directo
+export function nombreCompleto(usuario) {
+  if (!usuario?.nombre) return usuario?.email ?? '';
+  return `${usuario.nombre} ${usuario.apellido ?? ''}`.trim();
+}
+
 export function descripcionVehiculo(vehiculo) {
   return vehiculo ? `${vehiculo.patente} - ${vehiculo.marca} ${vehiculo.modelo}` : '-';
 }

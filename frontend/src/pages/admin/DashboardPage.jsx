@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import { useFetch } from '@/hooks/use-fetch';
+import { useAuth } from '@/auth/use-auth';
 import { listarVehiculos } from '@/services/vehiculos';
 import { listarViajes } from '@/services/viajes';
 import { Alerta } from '@/components/ui/Alerta';
@@ -15,6 +16,7 @@ function esHoy(fechaIso) {
 // Panel de Control del documento de diseno: encabezado con degradé, tres
 // tarjetas con los numeros del dia y la tabla de viajes que no terminaron.
 export function DashboardPage() {
+  const { usuario } = useAuth();
   const vehiculos = useFetch(listarVehiculos);
   const viajes = useFetch(() => listarViajes());
 
@@ -34,7 +36,7 @@ export function DashboardPage() {
       <div className="bienvenida">
         <div>
           <h1>Panel de Control</h1>
-          <p>Bienvenido, Administrador.</p>
+          <p>Bienvenido, {usuario.nombre ?? 'Administrador'}.</p>
         </div>
         <Link to="/viajes/nuevo" className="btn btn-claro">
           + Nuevo viaje
@@ -58,7 +60,6 @@ export function DashboardPage() {
           titulo="VTV próximas a vencer"
           valor={vtvProximas.length}
           detalle={vtvProximas.length ? 'Vencida o vence en 30 días' : 'Ninguna en los próximos 30 días'}
-          alerta={vtvProximas.length > 0}
           to="/vehiculos"
         />
       </div>
