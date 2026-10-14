@@ -66,8 +66,9 @@ Todas las rutas empiezan con `/api` y, salvo `health` y `login`, requieren el he
 | Método | Ruta | Rol | Descripción |
 |---|---|---|---|
 | GET | `/health` | público | Estado de la API |
-| POST | `/auth/login` | público | `{ email, password }` → `{ token, usuario }` (máx. 10 intentos cada 15 min) |
-| GET | `/auth/me` | ambos | Datos del usuario del token |
+| POST | `/auth/login` | público | `{ email, password }` → `{ token, usuario }` con id, email, rol, nombre y apellido (máx. 10 intentos cada 15 min) |
+| GET | `/auth/me` | ambos | Perfil propio: email, rol, nombre, DNI, teléfono y, si es conductor, su licencia. Si la cuenta se dio de baja responde 401 |
+| PATCH | `/auth/me` | ambos | `{ telefono }` → el usuario actualiza su teléfono (es el único dato propio que puede cambiar; el resto lo administra el admin) |
 | PUT | `/auth/password` | ambos | `{ password_actual, password_nueva }` → cambia la contraseña propia (mín. 8 caracteres, distinta de la actual; máx. 10 intentos cada 15 min) |
 
 ### Vehículos
@@ -138,4 +139,4 @@ Ciclo de vida: **En Depósito** → **En Viaje** → **Entregado** → **Finaliz
 ## Probar la API
 
 - **A mano:** `api.http`, con la extensión REST Client de VS Code. Trae todos los pedidos en orden, incluidos casos de error.
-- **Automático:** `npm test` corre 57 tests (auth, cambio de contraseña, vehículos, conductores y el ciclo completo de un viaje) contra la base de tests.
+- **Automático:** `npm test` corre 64 tests (auth, perfil, cambio de contraseña, vehículos, conductores y el ciclo completo de un viaje) contra la base de tests.
