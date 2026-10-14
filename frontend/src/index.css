@@ -1,15 +1,27 @@
-/* Paleta y tipografia del documento de Diseno de Interfaces (entrega 2). */
+/* Paleta y tipografia del documento de Diseno de Interfaces (entrega 2).
+ *
+ * Contraste (devolucion de la entrega 2): todo texto cumple WCAG AA, es decir
+ * al menos 4,5:1 contra su fondo. Medido con la formula de contraste WCAG,
+ * la misma de https://accessibleweb.com/color-contrast-checker/
+ *   - Los colores de estado del documento (#10B981, #EF4444) se mantienen para
+ *     bordes y detalles. Para botones con texto blanco se usa un tono mas
+ *     oscuro de la misma familia, porque el blanco sobre #10B981 da 2,5:1.
+ */
 :root {
-  --primario: #3776b6;
+  --primario: #3776b6;          /* blanco sobre este azul: 4,7:1 */
   --primario-oscuro: #2b5d91;
   --fondo: #f3f4f6;
   --blanco: #ffffff;
-  --texto: #1f2937;
-  --texto-suave: #6b7280;
+  --texto: #1f2937;             /* 14,7:1 sobre blanco */
+  --texto-suave: #4b5563;       /* 7,6:1 sobre blanco y 6,9:1 sobre el fondo gris */
+  --placeholder: #6b7280;       /* 4,8:1 sobre blanco */
   --borde: #e5e7eb;
+  --borde-campo: #848b95;       /* borde de los inputs: 3,4:1 (WCAG pide 3:1 para componentes) */
   --exito: #10b981;
+  --exito-oscuro: #047857;      /* blanco sobre este verde: 5,5:1 */
   --advertencia: #f59e0b;
   --error: #ef4444;
+  --error-oscuro: #dc2626;      /* blanco sobre este rojo: 4,8:1 */
   --gradiente: linear-gradient(135deg, #3776b6 0%, #6d5bd0 100%);
   --radio: 10px;
   --sombra: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -40,6 +52,9 @@ button, input, select, textarea { font: inherit; }
   color: var(--texto); text-decoration: none; background: none; border: none; cursor: pointer; text-align: left;
 }
 .nav-link:hover { background: var(--fondo); }
+/* Iconos (lucide-react): no se achican cuando el texto de al lado es largo */
+.nav-link svg, .btn svg { flex-shrink: 0; }
+.link-volver { display: inline-flex; align-items: center; gap: 0.3rem; }
 .nav-link.active { background: var(--primario); color: var(--blanco); }
 .sidebar .usuario { font-size: 0.85rem; color: var(--texto-suave); padding: 0.75rem; border-top: 1px solid var(--borde); }
 .contenido { flex: 1; min-width: 0; padding: 1.5rem; max-width: 1200px; margin: 0 auto; }
@@ -52,8 +67,14 @@ button, input, select, textarea { font: inherit; }
   .bottom-nav {
     display: flex; position: fixed; bottom: 0; left: 0; right: 0; background: var(--blanco);
     border-top: 1px solid var(--borde); justify-content: space-around; padding: 0.4rem 0; z-index: 10;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
   }
-  .bottom-nav .nav-link { flex-direction: column; gap: 0.1rem; font-size: 0.72rem; padding: 0.4rem; }
+  /* 5 opciones del mismo ancho, icono arriba y texto corto abajo */
+  .bottom-nav .nav-link {
+    flex: 1; min-width: 0; flex-direction: column; gap: 0.15rem; font-size: 0.72rem;
+    padding: 0.4rem 0.2rem; text-align: center;
+  }
+  .bottom-nav .nav-link:hover { transform: none; }
 }
 
 /* ---------- Layout del Conductor (pensado para celular) ---------- */
@@ -70,13 +91,36 @@ button, input, select, textarea { font: inherit; }
 .encabezado h1 { margin: 0; }
 
 .card { background: var(--blanco); border-radius: var(--radio); box-shadow: var(--sombra); padding: 1.25rem; margin-bottom: 1rem; }
-.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
-.stat { background: var(--blanco); border-radius: var(--radio); box-shadow: var(--sombra); padding: 1.25rem; border-left: 4px solid var(--primario); }
-.stat .valor { font-size: 2rem; font-weight: 700; }
+/* Encabezado del Panel de Control (como el mockup): degradé con el titulo en blanco.
+   Blanco sobre el degradé: 4,7:1 en el extremo azul y 5,2:1 en el violeta. */
+.bienvenida {
+  background: var(--gradiente); color: var(--blanco); border-radius: var(--radio);
+  padding: 1.5rem; margin-bottom: 1rem;
+  display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;
+}
+.bienvenida h1 { margin: 0; font-weight: 700; }
+.bienvenida p { margin: 0.25rem 0 0; }
+/* .btn.btn-claro (dos clases) para que le gane al fondo azul de .btn, definido mas abajo */
+.btn.btn-claro { background: var(--blanco); color: var(--primario); }
+.btn.btn-claro:hover { background: #e8f0f9; }
+
+/* Tarjetas de numeros: todas iguales; el color solo aparece si hay algo para mirar */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem; }
+.stat {
+  display: block; background: var(--blanco); border-radius: var(--radio); box-shadow: var(--sombra);
+  padding: 1.25rem; color: inherit; text-decoration: none;
+}
 .stat .titulo { color: var(--texto-suave); font-size: 0.9rem; }
-.stat.exito { border-left-color: var(--exito); }
-.stat.advertencia { border-left-color: var(--advertencia); }
-.stat.error { border-left-color: var(--error); }
+.stat .valor { font-size: 2rem; font-weight: 700; color: var(--primario); margin-top: 0.25rem; }
+.stat .detalle { color: var(--texto-suave); font-size: 0.8rem; margin-top: 0.25rem; }
+.stat.alerta .valor { color: var(--error-oscuro); }
+@media (max-width: 600px) {
+  .stats { gap: 0.5rem; }
+  .stat { padding: 0.75rem; text-align: center; }
+  .stat .titulo { font-size: 0.75rem; }
+  .stat .valor { font-size: 1.4rem; }
+  .stat .detalle { display: none; }
+}
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; border: 1px solid transparent;
@@ -87,27 +131,80 @@ button, input, select, textarea { font: inherit; }
 .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 .btn-secundario { background: var(--blanco); color: var(--texto); border-color: var(--borde); }
 .btn-secundario:hover { background: var(--fondo); }
-.btn-peligro { background: var(--error); }
-.btn-peligro:hover { background: #dc2626; }
-.btn-exito { background: var(--exito); }
-.btn-exito:hover { background: #059669; }
+.btn-peligro { background: var(--error-oscuro); }
+.btn-peligro:hover { background: #b91c1c; }
+.btn-exito { background: var(--exito-oscuro); }
+.btn-exito:hover { background: #065f46; }
 .btn-chico { padding: 0.3rem 0.6rem; font-size: 0.85rem; }
 /* Botones grandes para usar con el dedo (vista del conductor). */
 .btn-grande { width: 100%; padding: 1rem; font-size: 1.05rem; border-radius: 12px; }
 .acciones { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 
+/* ---------- Efectos al pasar el mouse (hover) ----------
+ * Para que se note que algo es clickeable: se agranda apenas, se oscurece un
+ * poco el color y aparece una sombra. La transicion lo hace suave.
+ */
+.btn, .nav-link, .stat, a.card, tbody tr {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.btn:hover:not(:disabled) { transform: translateY(-1px) scale(1.02); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12); }
+.btn:active:not(:disabled) { transform: scale(0.98); box-shadow: none; }   /* al hacer clic, se "hunde" */
+.btn-grande:hover:not(:disabled) { transform: translateY(-1px); }          /* ocupa todo el ancho: no se agranda */
+.nav-link:hover { transform: translateX(2px); }
+.nav-link.active:hover { transform: none; background: var(--primario-oscuro); }
+/* Tarjetas que son links (Panel de Control y viajes del conductor): se levantan */
+a.stat:hover, a.card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); }
+/* Botones claros sobre el degradé del conductor: no tienen que ponerse blancos */
+.conductor-header .btn-secundario:hover { background: rgba(255, 255, 255, 0.18); }
+a:not(.btn):not(.nav-link):not(.stat):not(.card):hover { text-decoration-thickness: 2px; }
+
+/* Foco visible para quien navega con teclado (Tab): mismo aviso que el mouse */
+.btn:focus-visible, .nav-link:focus-visible, a:focus-visible {
+  outline: 3px solid var(--primario); outline-offset: 2px;
+}
+
+/* Si la persona configuro su sistema para reducir animaciones, los cambios son
+   instantaneos (sin transicion). El leve agrandado se mantiene: es de 1 a 3 px,
+   no es el tipo de movimiento que esa opcion busca evitar. */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+
 .tabla-contenedor { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
 th, td { text-align: left; padding: 0.7rem 0.6rem; border-bottom: 1px solid var(--borde); white-space: nowrap; }
 th { color: var(--texto-suave); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; }
-tbody tr:hover td { background: #fafafa; }
+tbody tr:hover td { background: #eef4fb; }   /* celeste suave: se ve que fila esta bajo el mouse */
+
+/* ---------- Tablas en pantallas chicas: cada fila es una tarjeta ----------
+ * Asi no hay que deslizar de costado. El titulo de cada dato sale del
+ * atributo data-label de la celda (attr() lee ese atributo desde el CSS).
+ */
+@media (max-width: 900px) {
+  .tabla-responsive thead { display: none; }
+  .tabla-responsive, .tabla-responsive tbody, .tabla-responsive tr, .tabla-responsive td { display: block; width: 100%; }
+  .tabla-responsive tr {
+    border: 1px solid var(--borde); border-radius: var(--radio); padding: 0.4rem 0.8rem; margin-bottom: 0.6rem;
+  }
+  .tabla-responsive td {
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+    border-bottom: 1px dashed var(--borde); padding: 0.45rem 0; white-space: normal; text-align: right;
+  }
+  .tabla-responsive td:last-child { border-bottom: none; }
+  .tabla-responsive td::before {
+    content: attr(data-label); color: var(--texto-suave); font-size: 0.8rem; font-weight: 500;
+    text-transform: uppercase; text-align: left;
+  }
+  .tabla-responsive tbody tr:hover td { background: none; }
+  .tabla-responsive tbody tr:hover { background: #eef4fb; }
+}
 
 .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.78rem; font-weight: 500; white-space: nowrap; }
 .badge-exito { background: #d1fae5; color: #065f46; }
 .badge-advertencia { background: #fef3c7; color: #92400e; }
 .badge-error { background: #fee2e2; color: #991b1b; }
 .badge-info { background: #dbeafe; color: #1e40af; }
-.badge-neutro { background: var(--fondo); color: var(--texto-suave); }
+.badge-neutro { background: #e5e7eb; color: #374151; }
 
 .alerta { padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; }
 .alerta-error { background: #fee2e2; color: #991b1b; }
@@ -119,9 +216,16 @@ tbody tr:hover td { background: #fafafa; }
 .campo { display: flex; flex-direction: column; gap: 0.3rem; }
 .campo label { font-size: 0.88rem; font-weight: 500; }
 .campo input, .campo select, .campo textarea {
-  padding: 0.6rem 0.7rem; border: 1px solid var(--borde); border-radius: 8px; background: var(--blanco); width: 100%;
+  padding: 0.6rem 0.7rem; border: 1px solid var(--borde-campo); border-radius: 8px; background: var(--blanco); width: 100%;
+  color: var(--texto);
 }
 .campo input:focus, .campo select:focus { outline: 2px solid var(--primario); outline-offset: -1px; }
+/* Placeholder: ayuda visual de que ingresar. Con el gris por defecto del
+   navegador el contraste era 2,4:1; con este llega a 4,8:1.
+   (opacity: 1 porque Firefox le baja la opacidad por defecto) */
+::placeholder { color: var(--placeholder); opacity: 1; }
+/* Campos deshabilitados (ej: DNI al editar): se distinguen sin perder legibilidad */
+.campo input:disabled { background: var(--fondo); color: var(--texto-suave); cursor: not-allowed; }
 
 .cargando, .vacio { padding: 2rem; text-align: center; color: var(--texto-suave); }
 .texto-suave { color: var(--texto-suave); }
