@@ -55,31 +55,39 @@ export function MisViajesPage() {
         </Alerta>
       )}
 
-      {actual ? (
-        <ViajeActual viaje={actual} />
-      ) : (
-        <div className="card vacio">No tenés viajes asignados por ahora.</div>
-      )}
+      {/* En el celular va todo en una columna; en la compu, el viaje actual a
+          la izquierda y el resumen con el historial a la derecha (ver index.css) */}
+      <div className="conductor-columnas">
+        <div>
+          {actual ? (
+            <ViajeActual viaje={actual} />
+          ) : (
+            <div className="card vacio">No tenés viajes asignados por ahora.</div>
+          )}
 
-      {otros.map((v) => (
-        <TarjetaViaje key={v.id} viaje={v} />
-      ))}
-
-      <h2 className="subtitulo-seccion">Tu resumen</h2>
-      <div className="stats">
-        <StatCard titulo="Viajes realizados" valor={finalizados.length} />
-        <StatCard titulo="Entregas hechas" valor={entregas} />
-        <StatCard titulo="Km recorridos" valor={km.toLocaleString('es-AR')} />
-      </div>
-
-      {finalizados.length > 0 && (
-        <>
-          <h2 className="subtitulo-seccion">Últimos viajes</h2>
-          {finalizados.slice(0, 5).map((v) => (
+          {otros.map((v) => (
             <TarjetaViaje key={v.id} viaje={v} />
           ))}
-        </>
-      )}
+        </div>
+
+        <div>
+          <h2 className="subtitulo-seccion primero">Tu resumen</h2>
+          <div className="stats">
+            <StatCard titulo="Viajes realizados" valor={finalizados.length} />
+            <StatCard titulo="Entregas hechas" valor={entregas} />
+            <StatCard titulo="Km recorridos" valor={km.toLocaleString('es-AR')} />
+          </div>
+
+          {finalizados.length > 0 && (
+            <>
+              <h2 className="subtitulo-seccion">Últimos viajes</h2>
+              {finalizados.slice(0, 5).map((v) => (
+                <TarjetaViaje key={v.id} viaje={v} />
+              ))}
+            </>
+          )}
+        </div>
+      </div>
     </>
   );
 }
