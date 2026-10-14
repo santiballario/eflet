@@ -4,7 +4,9 @@ import { PublicOnlyRoute } from '@/auth/PublicOnlyRoute';
 import { ROL } from '@/auth/roles';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { ConductorLayout } from '@/components/layout/ConductorLayout';
+import { LayoutSegunRol } from '@/components/layout/LayoutSegunRol';
 import { LoginPage } from '@/pages/LoginPage';
+import { MiCuentaPage } from '@/pages/MiCuentaPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { DashboardPage } from '@/pages/admin/DashboardPage';
 import { VehiculosPage } from '@/pages/admin/VehiculosPage';
@@ -59,6 +61,17 @@ function App() {
       >
         <Route path="/mis-viajes" element={<MisViajesPage />} />
         <Route path="/mis-viajes/:id" element={<HojaDeRutaPage />} />
+      </Route>
+
+      {/* Los dos roles: cada uno la ve dentro de su layout */}
+      <Route
+        element={
+          <ProtectedRoute roles={[ROL.ADMIN, ROL.CONDUCTOR]}>
+            <LayoutSegunRol />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/mi-cuenta" element={<MiCuentaPage />} />
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />

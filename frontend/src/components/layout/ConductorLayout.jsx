@@ -1,4 +1,5 @@
 import { Link, Outlet } from 'react-router';
+import { CircleUser, LogOut } from 'lucide-react';
 import { useAuth } from '@/auth/use-auth';
 
 // Vista del conductor: pensada para usar desde el celular arriba del vehiculo,
@@ -12,9 +13,16 @@ export function ConductorLayout() {
         <Link to="/mis-viajes" className="marca" style={{ color: 'inherit', textDecoration: 'none' }}>
           EFLET
         </Link>
-        <button className="btn btn-secundario btn-chico" onClick={logout}>
-          Salir
-        </button>
+        <div className="acciones">
+          <Link to="/mi-cuenta" className="btn btn-secundario btn-chico">
+            <CircleUser size={16} aria-hidden="true" />
+            Mi cuenta
+          </Link>
+          <button className="btn btn-secundario btn-chico" onClick={logout}>
+            <LogOut size={16} aria-hidden="true" />
+            Salir
+          </button>
+        </div>
       </header>
       <main className="conductor-main">
         <Outlet />

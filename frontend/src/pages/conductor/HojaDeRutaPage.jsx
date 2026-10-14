@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router';
+import { ArrowLeft, Check, X } from 'lucide-react';
 import { useFetch } from '@/hooks/use-fetch';
 import { obtenerViaje, registrarEntrega, registrarRegreso, registrarSalida } from '@/services/viajes';
 import { listarMotivosNoEntrega } from '@/services/catalogos';
@@ -8,6 +9,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Campo } from '@/components/ui/Campo';
 import { Cargando } from '@/components/ui/Cargando';
 import { ListaDestinos } from '@/components/ListaDestinos';
+import { Progreso } from '@/components/ui/Progreso';
 import { descripcionVehiculo } from '@/utils/formato';
 
 // Flujo del conductor segun el estado del viaje:
@@ -98,10 +100,12 @@ export function HojaDeRutaPage() {
           disabled={enviando}
           onClick={() => ejecutar(() => registrarEntrega(viaje.id, destino.id, 'Entregado'))}
         >
-          ✓ Entregado
+          <Check size={20} aria-hidden="true" />
+          Entregado
         </button>
         <button className="btn btn-peligro btn-grande" disabled={enviando} onClick={() => setNoEntregado(destino)}>
-          ✕ No entregado
+          <X size={20} aria-hidden="true" />
+          No entregado
         </button>
       </div>
     );
@@ -109,8 +113,9 @@ export function HojaDeRutaPage() {
 
   return (
     <>
-      <Link to="/mis-viajes" className="chico">
-        ← Mis hojas de ruta
+      <Link to="/mis-viajes" className="chico link-volver">
+        <ArrowLeft size={16} aria-hidden="true" />
+        Mis hojas de ruta
       </Link>
       <div className="encabezado" style={{ marginTop: '0.5rem' }}>
         <h1>Hoja de ruta #{viaje.id}</h1>
@@ -118,54 +123,71 @@ export function HojaDeRutaPage() {
       </div>
       <p className="texto-suave">{descripcionVehiculo(viaje.Vehiculo)}</p>
 
-      <Alerta>{errorAccion}</Alerta>
+      {/* En el celular va todo en una columna; en la compu, el avance y las
+          acciones a la izquierda y las paradas a la derecha (ver index.css) */}
+      <div className="conductor-columnas">
+        <div>
+          {estado !== 'En Depósito' && (
+            <div className="card">
+              <Progreso
+                hechas={viaje.Destinos.filter((d) => d.estado_entrega !== 'Pendiente').length}
+                total={viaje.Destinos.length}
+              />
+            </div>
+          )}
 
-      {estado === 'En Depósito' && (
-        <form className="card formulario" onSubmit={handleSalida}>
-          <h2>Registrar salida</h2>
-          <Campo
-            label="Kilometraje actual del vehículo"
-            type="number"
-            inputMode="numeric"
-            min="0"
-            value={km}
-            onChange={(e) => setKm(e.target.value)}
-            required
-          />
-          <button className="btn btn-grande" disabled={enviando}>
-            Iniciar viaje
-          </button>
-        </form>
-      )}
+          <Alerta>{errorAccion}</Alerta>
 
-      {estado === 'Entregado' && (
-        <form className="card formulario" onSubmit={handleRegreso}>
-          <h2>Registrar regreso</h2>
-          <p className="chico texto-suave">Salida: {viaje.km_salida} km</p>
-          <Campo
-            label="Kilometraje al volver"
-            type="number"
-            inputMode="numeric"
-            min={viaje.km_salida ?? 0}
-            value={km}
-            onChange={(e) => setKm(e.target.value)}
-            required
-          />
-          <button className="btn btn-grande" disabled={enviando}>
-            Finalizar viaje
-          </button>
-        </form>
-      )}
+          {estado === 'En Depósito' && (
+            <form className="card formulario" onSubmit={handleSalida}>
+              <h2>Registrar salida</h2>
+              <Campo
+                label="Kilometraje actual del vehículo"
+                type="number"
+                inputMode="numeric"
+                min="0"
+                placeholder="Ej: 15000"
+                value={km}
+                onChange={(e) => setKm(e.target.value)}
+                required
+              />
+              <button className="btn btn-grande" disabled={enviando}>
+                Iniciar viaje
+              </button>
+            </form>
+          )}
 
-      {estado === 'Finalizado' && (
-        <Alerta tipo="exito">
-          Viaje finalizado. Recorriste {viaje.km_recorridos} km ({viaje.km_salida} → {viaje.km_regreso}).
-        </Alerta>
-      )}
+          {estado === 'Entregado' && (
+            <form className="card formulario" onSubmit={handleRegreso}>
+              <h2>Registrar regreso</h2>
+              <p className="chico texto-suave">Salida: {viaje.km_salida} km</p>
+              <Campo
+                label="Kilometraje al volver"
+                type="number"
+                inputMode="numeric"
+                min={viaje.km_salida ?? 0}
+                placeholder={`Mayor o igual a ${viaje.km_salida} km`}
+                value={km}
+                onChange={(e) => setKm(e.target.value)}
+                required
+              />
+              <button className="btn btn-grande" disabled={enviando}>
+                Finalizar viaje
+              </button>
+            </form>
+          )}
 
-      <div className="card">
-        <h2>Paradas</h2>
-        <ListaDestinos destinos={viaje.Destinos} acciones={accionesParada} />
+          {estado === 'Finalizado' && (
+            <Alerta tipo="exito">
+              Viaje finalizado. Recorriste {viaje.km_recorridos} km ({viaje.km_salida} → {viaje.km_regreso}).
+            </Alerta>
+          )}
+        </div>
+
+        <div className="card">
+          <h2>Paradas</h2>
+          <ListaDestinos destinos={viaje.Destinos} acciones={accionesParada} />
+        </div>
       </div>
     </>
   );
