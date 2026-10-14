@@ -1,0 +1,55 @@
+# Levanta todo eFlet con un solo comando:  docker compose up --build
+#
+# Las contraseñas de abajo son SOLO para correr el proyecto en local.
+# En un servidor real se inyectan como secretos y nunca se suben al repo.
+
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root_local
+      MYSQL_DATABASE: eflet_db
+      # Usuario propio para la API, con permisos solo sobre eflet_db
+      # (minimo privilegio: la API no usa root).
+      MYSQL_USER: eflet
+      MYSQL_PASSWORD: eflet_local
+    volumes:
+      # Volumen con nombre: los datos sobreviven aunque se borre el contenedor.
+      - db-data:/var/lib/mysql
+    healthcheck:
+      # "Sano" recien cuando MySQL acepta conexiones por red.
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  backend:
+    build: ./backend
+    environment:
+      DB_HOST: db            # nombre del servicio de arriba = su direccion en la red de Docker
+      DB_PORT: 3306
+      DB_NAME: eflet_db
+      DB_USER: eflet
+      DB_PASSWORD: eflet_local
+      JWT_SECRET: secreto-solo-para-docker-local-cambiar-en-produccion
+      JWT_EXPIRES_IN: 8h
+      CORS_ORIGIN: http://localhost:5173
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        # Espera a que MySQL este sano, no solo "arrancado".
+        condition: service_healthy
+    restart: on-failure
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:80"            # en tu compu: localhost:5173 -> nginx en el puerto 80 del contenedor
+    depends_on:
+      - backend
+
+volumes:
+  db-data:
