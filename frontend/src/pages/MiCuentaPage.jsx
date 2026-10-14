@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { LogOut, Pencil } from 'lucide-react';
 import { actualizarPerfil, cambiarPassword, getMe } from '@/services/auth';
 import { useAuth } from '@/auth/use-auth';
+import { ROL } from '@/auth/roles';
 import { useFetch } from '@/hooks/use-fetch';
 import { Alerta } from '@/components/ui/Alerta';
 import { Badge } from '@/components/ui/Badge';
@@ -13,18 +14,21 @@ import { diasHasta, formatearFecha, nombreCompleto } from '@/utils/formato';
 //   - sus datos (solo lectura, salvo el telefono)
 //   - cambio de contraseña
 export function MiCuentaPage() {
-  const { logout } = useAuth();
+  const { usuario, logout } = useAuth();
   const { data: perfil, error, cargando, setData: setPerfil } = useFetch(getMe);
 
   return (
     <>
       <div className="encabezado">
         <h1>Mi cuenta</h1>
-        {/* En el celular el admin no tiene el menu lateral: sale desde aca */}
-        <button className="btn btn-secundario" onClick={logout}>
-          <LogOut size={18} aria-hidden="true" />
-          Cerrar sesión
-        </button>
+        {/* Solo el admin en el celular: ahi no tiene el menu lateral para salir.
+            (En la compu esta en el menu, y el conductor lo tiene siempre arriba.) */}
+        {usuario.rol === ROL.ADMIN && (
+          <button className="btn btn-secundario solo-celular" onClick={logout}>
+            <LogOut size={18} aria-hidden="true" />
+            Cerrar sesión
+          </button>
+        )}
       </div>
 
       <div className="cuenta">
@@ -55,6 +59,9 @@ function MisDatos({ perfil, onActualizado }) {
 
   const licencia = perfil.conductor;
   const diasLicencia = licencia ? diasHasta(licencia.vencimiento_licencia) : null;
+  // El admin solo ve nombre, email y rol: su DNI y telefono no se usan en
+  // ningun lado (existen porque todo Usuario tiene una Persona, ver el DER).
+  const esConductor = perfil.rol === ROL.CONDUCTOR;
 
   async function guardarTelefono(e) {
     e.preventDefault();
@@ -81,7 +88,7 @@ function MisDatos({ perfil, onActualizado }) {
       <div className="datos">
         <Dato etiqueta="Nombre">{nombreCompleto(perfil)}</Dato>
         <Dato etiqueta="Email">{perfil.email}</Dato>
-        <Dato etiqueta="DNI">{perfil.dni}</Dato>
+        {esConductor && <Dato etiqueta="DNI">{perfil.dni}</Dato>}
         <Dato etiqueta="Rol">{perfil.rol}</Dato>
       </div>
 
@@ -104,48 +111,52 @@ function MisDatos({ perfil, onActualizado }) {
         </>
       )}
 
-      <h3 className="subtitulo-seccion">Contacto</h3>
-      {editando ? (
-        <form className="formulario" onSubmit={guardarTelefono}>
-          <Campo
-            label="Teléfono"
-            type="tel"
-            autoComplete="tel"
-            placeholder="Ej: 221-4567890"
-            maxLength={20}
-            value={telefono}
-            onChange={(e) => setTelefono(e.target.value)}
-            required
-            autoFocus
-          />
-          <div className="acciones">
-            <button
-              type="button"
-              className="btn btn-secundario"
-              onClick={() => {
-                setEditando(false);
-                setTelefono(perfil.telefono ?? '');
-              }}
-            >
-              Cancelar
-            </button>
-            <button className="btn" disabled={enviando}>
-              {enviando ? 'Guardando...' : 'Guardar teléfono'}
-            </button>
-          </div>
-        </form>
-      ) : (
-        <div className="encabezado" style={{ marginBottom: 0 }}>
-          <Dato etiqueta="Teléfono">{perfil.telefono}</Dato>
-          <button className="btn btn-secundario btn-chico" onClick={() => setEditando(true)}>
-            <Pencil size={14} aria-hidden="true" />
-            Cambiar
-          </button>
-        </div>
+      {esConductor && (
+        <>
+          <h3 className="subtitulo-seccion">Contacto</h3>
+          {editando ? (
+            <form className="formulario" onSubmit={guardarTelefono}>
+              <Campo
+                label="Teléfono"
+                type="tel"
+                autoComplete="tel"
+                placeholder="Ej: 221-4567890"
+                maxLength={20}
+                value={telefono}
+                onChange={(e) => setTelefono(e.target.value)}
+                required
+                autoFocus
+              />
+              <div className="acciones">
+                <button
+                  type="button"
+                  className="btn btn-secundario"
+                  onClick={() => {
+                    setEditando(false);
+                    setTelefono(perfil.telefono ?? '');
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button className="btn" disabled={enviando}>
+                  {enviando ? 'Guardando...' : 'Guardar teléfono'}
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="encabezado" style={{ marginBottom: 0 }}>
+              <Dato etiqueta="Teléfono">{perfil.telefono}</Dato>
+              <button className="btn btn-secundario btn-chico" onClick={() => setEditando(true)}>
+                <Pencil size={14} aria-hidden="true" />
+                Cambiar
+              </button>
+            </div>
+          )}
+          <p className="chico texto-suave" style={{ marginBottom: 0 }}>
+            Para corregir otros datos, pedíselo al administrador.
+          </p>
+        </>
       )}
-      <p className="chico texto-suave" style={{ marginBottom: 0 }}>
-        Para corregir otros datos, pedíselo al administrador.
-      </p>
     </section>
   );
 }

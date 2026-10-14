@@ -61,6 +61,10 @@ button, input, select, textarea { font: inherit; }
 
 /* En celular la sidebar se convierte en una barra inferior (mobile-first del documento). */
 .bottom-nav { display: none; }
+/* Elementos que solo se muestran en el celular. ".btn.solo-celular" con dos
+   clases para ganarle al display de .btn, que esta definido mas abajo. */
+.solo-celular, .btn.solo-celular { display: none; }
+@media (max-width: 768px) { .solo-celular, .btn.solo-celular { display: inline-flex; } }
 @media (max-width: 768px) {
   .sidebar { display: none; }
   .contenido { padding: 1rem 1rem 5rem; }
@@ -84,7 +88,9 @@ button, input, select, textarea { font: inherit; }
 }
 .conductor-header .marca { font-weight: 700; letter-spacing: 1px; font-size: 1.2rem; }
 .conductor-header .btn-secundario { background: transparent; color: var(--blanco); border-color: rgba(255, 255, 255, 0.6); }
-.conductor-main { max-width: 600px; margin: 0 auto; padding: 1rem; }
+/* En el celular ocupa todo el ancho; en la compu se abre hasta 1100px y el
+   contenido se reparte en dos columnas (ver .conductor-columnas) */
+.conductor-main { max-width: 1100px; margin: 0 auto; padding: 1rem; }
 
 /* ---------- Componentes ---------- */
 .encabezado { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
@@ -261,6 +267,12 @@ tbody tr:hover td { background: #eef4fb; }   /* celeste suave: se ve que fila es
 .saludo h1 { margin-bottom: 0.1rem; }
 .saludo p { margin: 0 0 1rem; }
 .viaje-actual { border-top: 4px solid var(--primario); }
+/* Dos columnas en pantallas grandes; en el celular una debajo de la otra */
+.conductor-columnas { display: grid; grid-template-columns: 1fr; gap: 0 1.5rem; align-items: start; }
+@media (min-width: 900px) {
+  .conductor-columnas { grid-template-columns: 1fr 1fr; }
+  .subtitulo-seccion.primero { margin-top: 0; }
+}
 .tarjeta-viaje { display: block; color: inherit; text-decoration: none; }
 /* En la pantalla del conductor el resumen va siempre en 3 columnas, como en el celular */
 .conductor-main .stats { gap: 0.5rem; }
