@@ -58,7 +58,6 @@ export function DashboardPage() {
           titulo="VTV próximas a vencer"
           valor={vtvProximas.length}
           detalle={vtvProximas.length ? 'Vencida o vence en 30 días' : 'Ninguna en los próximos 30 días'}
-          alerta={vtvProximas.length > 0}
           to="/vehiculos"
         />
       </div>
