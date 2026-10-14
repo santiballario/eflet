@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { LogOut } from 'lucide-react';
 import { cambiarPassword } from '@/services/auth';
+import { useAuth } from '@/auth/use-auth';
 import { Alerta } from '@/components/ui/Alerta';
 import { Campo } from '@/components/ui/Campo';
 
@@ -8,6 +10,7 @@ const VACIO = { password_actual: '', password_nueva: '', confirmacion: '' };
 // Pantalla "Mi cuenta": cada usuario (admin o conductor) cambia su propia
 // contraseña. Sirve para reemplazar la contraseña inicial que le dio el admin.
 export function MiCuentaPage() {
+  const { logout } = useAuth();
   const [form, setForm] = useState(VACIO);
   const [error, setError] = useState('');
   const [exito, setExito] = useState('');
@@ -44,7 +47,14 @@ export function MiCuentaPage() {
 
   return (
     <>
-      <h1>Mi cuenta</h1>
+      <div className="encabezado">
+        <h1>Mi cuenta</h1>
+        {/* En el celular el admin no tiene el menu lateral: sale desde aca */}
+        <button className="btn btn-secundario" onClick={logout}>
+          <LogOut size={18} aria-hidden="true" />
+          Cerrar sesión
+        </button>
+      </div>
       <form className="card formulario" onSubmit={handleSubmit} style={{ maxWidth: 480 }}>
         <h2>Cambiar contraseña</h2>
         <Alerta>{error}</Alerta>

@@ -67,8 +67,14 @@ button, input, select, textarea { font: inherit; }
   .bottom-nav {
     display: flex; position: fixed; bottom: 0; left: 0; right: 0; background: var(--blanco);
     border-top: 1px solid var(--borde); justify-content: space-around; padding: 0.4rem 0; z-index: 10;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
   }
-  .bottom-nav .nav-link { flex-direction: column; gap: 0.1rem; font-size: 0.72rem; padding: 0.4rem; }
+  /* 5 opciones del mismo ancho, icono arriba y texto corto abajo */
+  .bottom-nav .nav-link {
+    flex: 1; min-width: 0; flex-direction: column; gap: 0.15rem; font-size: 0.72rem;
+    padding: 0.4rem 0.2rem; text-align: center;
+  }
+  .bottom-nav .nav-link:hover { transform: none; }
 }
 
 /* ---------- Layout del Conductor (pensado para celular) ---------- */
@@ -169,6 +175,29 @@ table { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
 th, td { text-align: left; padding: 0.7rem 0.6rem; border-bottom: 1px solid var(--borde); white-space: nowrap; }
 th { color: var(--texto-suave); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; }
 tbody tr:hover td { background: #eef4fb; }   /* celeste suave: se ve que fila esta bajo el mouse */
+
+/* ---------- Tablas en pantallas chicas: cada fila es una tarjeta ----------
+ * Asi no hay que deslizar de costado. El titulo de cada dato sale del
+ * atributo data-label de la celda (attr() lee ese atributo desde el CSS).
+ */
+@media (max-width: 900px) {
+  .tabla-responsive thead { display: none; }
+  .tabla-responsive, .tabla-responsive tbody, .tabla-responsive tr, .tabla-responsive td { display: block; width: 100%; }
+  .tabla-responsive tr {
+    border: 1px solid var(--borde); border-radius: var(--radio); padding: 0.4rem 0.8rem; margin-bottom: 0.6rem;
+  }
+  .tabla-responsive td {
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+    border-bottom: 1px dashed var(--borde); padding: 0.45rem 0; white-space: normal; text-align: right;
+  }
+  .tabla-responsive td:last-child { border-bottom: none; }
+  .tabla-responsive td::before {
+    content: attr(data-label); color: var(--texto-suave); font-size: 0.8rem; font-weight: 500;
+    text-transform: uppercase; text-align: left;
+  }
+  .tabla-responsive tbody tr:hover td { background: none; }
+  .tabla-responsive tbody tr:hover { background: #eef4fb; }
+}
 
 .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.78rem; font-weight: 500; white-space: nowrap; }
 .badge-exito { background: #d1fae5; color: #065f46; }
