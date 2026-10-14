@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from 'react-router';
 import { CircleUser, LayoutDashboard, LogOut, Route, Truck, Users } from 'lucide-react';
 import { useAuth } from '@/auth/use-auth';
+import { nombreCompleto } from '@/utils/formato';
 
 // Menu lateral del documento de diseno: Panel de Control, Hojas de Ruta,
 // Gestion de Flota y Conductores. En celular se muestra abajo (bottom nav)
@@ -32,7 +33,8 @@ export function AdminLayout() {
           ))}
         </nav>
         <div className="usuario">
-          <div>{usuario.email ?? usuario.rol}</div>
+          <div className="usuario-nombre">{nombreCompleto(usuario) || usuario.rol}</div>
+          <div className="chico">{usuario.rol}</div>
           <NavLink to="/mi-cuenta" className="nav-link">
             <CircleUser size={18} aria-hidden="true" />
             Mi cuenta
