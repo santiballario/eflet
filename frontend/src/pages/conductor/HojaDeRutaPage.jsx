@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Campo } from '@/components/ui/Campo';
 import { Cargando } from '@/components/ui/Cargando';
 import { ListaDestinos } from '@/components/ListaDestinos';
+import { Progreso } from '@/components/ui/Progreso';
 import { descripcionVehiculo } from '@/utils/formato';
 
 // Flujo del conductor segun el estado del viaje:
@@ -121,6 +122,15 @@ export function HojaDeRutaPage() {
         <Badge estado={estado} />
       </div>
       <p className="texto-suave">{descripcionVehiculo(viaje.Vehiculo)}</p>
+
+      {estado !== 'En Depósito' && (
+        <div className="card">
+          <Progreso
+            hechas={viaje.Destinos.filter((d) => d.estado_entrega !== 'Pendiente').length}
+            total={viaje.Destinos.length}
+          />
+        </div>
+      )}
 
       <Alerta>{errorAccion}</Alerta>
 

@@ -248,4 +248,27 @@ tbody tr:hover td { background: #eef4fb; }   /* celeste suave: se ve que fila es
 .parada-form { display: grid; grid-template-columns: 1fr 110px auto; gap: 0.5rem; align-items: end; margin-bottom: 0.5rem; }
 @media (max-width: 600px) { .parada-form { grid-template-columns: 1fr 80px auto; } }
 .datos { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; }
-.datos .etiqueta { font-size: 0.8rem; color: var(--texto-suave); }
+.datos .etiqueta, .etiqueta { font-size: 0.8rem; color: var(--texto-suave); }
+.subtitulo-seccion { font-size: 1rem; margin: 1.25rem 0 0.6rem; }
+
+/* ---------- Mi cuenta: datos y contraseña lado a lado en la compu ---------- */
+.cuenta { display: grid; grid-template-columns: 3fr 2fr; gap: 1rem; align-items: start; }
+.cuenta > .card { margin-bottom: 0; }
+@media (max-width: 900px) { .cuenta { grid-template-columns: 1fr; } }
+.sidebar .usuario-nombre { color: var(--texto); font-weight: 500; }
+
+/* ---------- Pantalla del conductor ---------- */
+.saludo h1 { margin-bottom: 0.1rem; }
+.saludo p { margin: 0 0 1rem; }
+.viaje-actual { border-top: 4px solid var(--primario); }
+.tarjeta-viaje { display: block; color: inherit; text-decoration: none; }
+/* En la pantalla del conductor el resumen va siempre en 3 columnas, como en el celular */
+.conductor-main .stats { gap: 0.5rem; }
+.conductor-main .stat { padding: 0.75rem; text-align: center; }
+.conductor-main .stat .titulo { font-size: 0.75rem; }
+.conductor-main .stat .valor { font-size: 1.4rem; }
+
+/* Barra de progreso de paradas */
+.progreso-texto { display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 0.35rem; }
+.progreso-barra { height: 10px; background: var(--borde); border-radius: 999px; overflow: hidden; }
+.progreso-relleno { height: 100%; background: var(--exito-oscuro); border-radius: 999px; transition: width 0.3s ease; }
