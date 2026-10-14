@@ -128,6 +128,7 @@ export function HojaDeRutaPage() {
             type="number"
             inputMode="numeric"
             min="0"
+            placeholder="Ej: 15000"
             value={km}
             onChange={(e) => setKm(e.target.value)}
             required
@@ -147,6 +148,7 @@ export function HojaDeRutaPage() {
             type="number"
             inputMode="numeric"
             min={viaje.km_salida ?? 0}
+            placeholder={`Mayor o igual a ${viaje.km_salida} km`}
             value={km}
             onChange={(e) => setKm(e.target.value)}
             required

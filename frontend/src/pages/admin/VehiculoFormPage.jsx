@@ -73,9 +73,9 @@ export function VehiculoFormPage() {
         <Alerta>{error}</Alerta>
 
         <div className="fila">
-          <Campo label="Patente" name="patente" value={form.patente} onChange={handleChange} maxLength={10} required />
-          <Campo label="Marca" name="marca" value={form.marca} onChange={handleChange} required />
-          <Campo label="Modelo" name="modelo" value={form.modelo} onChange={handleChange} required />
+          <Campo label="Patente" name="patente" value={form.patente} onChange={handleChange} maxLength={10} placeholder="Ej: AB123CD" required />
+          <Campo label="Marca" name="marca" value={form.marca} onChange={handleChange} placeholder="Ej: Renault" required />
+          <Campo label="Modelo" name="modelo" value={form.modelo} onChange={handleChange} placeholder="Ej: Kangoo" required />
         </div>
         <div className="fila">
           <Campo
@@ -84,6 +84,7 @@ export function VehiculoFormPage() {
             type="number"
             min="0.01"
             step="0.01"
+            placeholder="Ej: 650"
             value={form.cantidad_maxima}
             onChange={handleChange}
             required

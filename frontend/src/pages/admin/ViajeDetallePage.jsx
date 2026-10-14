@@ -121,6 +121,7 @@ export function ViajeDetallePage() {
               label="Nueva parada - Dirección"
               value={nuevaParada.direccion_farmacia}
               onChange={(e) => setNuevaParada({ ...nuevaParada, direccion_farmacia: e.target.value })}
+              placeholder="Ej: Farmacia Norte - Calle 13 N° 845, La Plata"
               maxLength={200}
               required
             />

@@ -101,6 +101,7 @@ export function ViajeNuevoPage() {
               label={`Parada ${i + 1} - Dirección de la farmacia`}
               value={p.direccion_farmacia}
               onChange={(e) => cambiarParada(i, 'direccion_farmacia', e.target.value)}
+              placeholder="Ej: Farmacia Central - Calle 7 N° 1234, La Plata"
               maxLength={200}
               required
             />

@@ -1,15 +1,27 @@
-/* Paleta y tipografia del documento de Diseno de Interfaces (entrega 2). */
+/* Paleta y tipografia del documento de Diseno de Interfaces (entrega 2).
+ *
+ * Contraste (devolucion de la entrega 2): todo texto cumple WCAG AA, es decir
+ * al menos 4,5:1 contra su fondo. Medido con la formula de contraste WCAG,
+ * la misma de https://accessibleweb.com/color-contrast-checker/
+ *   - Los colores de estado del documento (#10B981, #EF4444) se mantienen para
+ *     bordes y detalles. Para botones con texto blanco se usa un tono mas
+ *     oscuro de la misma familia, porque el blanco sobre #10B981 da 2,5:1.
+ */
 :root {
-  --primario: #3776b6;
+  --primario: #3776b6;          /* blanco sobre este azul: 4,7:1 */
   --primario-oscuro: #2b5d91;
   --fondo: #f3f4f6;
   --blanco: #ffffff;
-  --texto: #1f2937;
-  --texto-suave: #6b7280;
+  --texto: #1f2937;             /* 14,7:1 sobre blanco */
+  --texto-suave: #4b5563;       /* 7,6:1 sobre blanco y 6,9:1 sobre el fondo gris */
+  --placeholder: #6b7280;       /* 4,8:1 sobre blanco */
   --borde: #e5e7eb;
+  --borde-campo: #848b95;       /* borde de los inputs: 3,4:1 (WCAG pide 3:1 para componentes) */
   --exito: #10b981;
+  --exito-oscuro: #047857;      /* blanco sobre este verde: 5,5:1 */
   --advertencia: #f59e0b;
   --error: #ef4444;
+  --error-oscuro: #dc2626;      /* blanco sobre este rojo: 4,8:1 */
   --gradiente: linear-gradient(135deg, #3776b6 0%, #6d5bd0 100%);
   --radio: 10px;
   --sombra: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -87,10 +99,10 @@ button, input, select, textarea { font: inherit; }
 .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 .btn-secundario { background: var(--blanco); color: var(--texto); border-color: var(--borde); }
 .btn-secundario:hover { background: var(--fondo); }
-.btn-peligro { background: var(--error); }
-.btn-peligro:hover { background: #dc2626; }
-.btn-exito { background: var(--exito); }
-.btn-exito:hover { background: #059669; }
+.btn-peligro { background: var(--error-oscuro); }
+.btn-peligro:hover { background: #b91c1c; }
+.btn-exito { background: var(--exito-oscuro); }
+.btn-exito:hover { background: #065f46; }
 .btn-chico { padding: 0.3rem 0.6rem; font-size: 0.85rem; }
 /* Botones grandes para usar con el dedo (vista del conductor). */
 .btn-grande { width: 100%; padding: 1rem; font-size: 1.05rem; border-radius: 12px; }
@@ -107,7 +119,7 @@ tbody tr:hover td { background: #fafafa; }
 .badge-advertencia { background: #fef3c7; color: #92400e; }
 .badge-error { background: #fee2e2; color: #991b1b; }
 .badge-info { background: #dbeafe; color: #1e40af; }
-.badge-neutro { background: var(--fondo); color: var(--texto-suave); }
+.badge-neutro { background: #e5e7eb; color: #374151; }
 
 .alerta { padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1rem; }
 .alerta-error { background: #fee2e2; color: #991b1b; }
@@ -119,9 +131,16 @@ tbody tr:hover td { background: #fafafa; }
 .campo { display: flex; flex-direction: column; gap: 0.3rem; }
 .campo label { font-size: 0.88rem; font-weight: 500; }
 .campo input, .campo select, .campo textarea {
-  padding: 0.6rem 0.7rem; border: 1px solid var(--borde); border-radius: 8px; background: var(--blanco); width: 100%;
+  padding: 0.6rem 0.7rem; border: 1px solid var(--borde-campo); border-radius: 8px; background: var(--blanco); width: 100%;
+  color: var(--texto);
 }
 .campo input:focus, .campo select:focus { outline: 2px solid var(--primario); outline-offset: -1px; }
+/* Placeholder: ayuda visual de que ingresar. Con el gris por defecto del
+   navegador el contraste era 2,4:1; con este llega a 4,8:1.
+   (opacity: 1 porque Firefox le baja la opacidad por defecto) */
+::placeholder { color: var(--placeholder); opacity: 1; }
+/* Campos deshabilitados (ej: DNI al editar): se distinguen sin perder legibilidad */
+.campo input:disabled { background: var(--fondo); color: var(--texto-suave); cursor: not-allowed; }
 
 .cargando, .vacio { padding: 2rem; text-align: center; color: var(--texto-suave); }
 .texto-suave { color: var(--texto-suave); }
