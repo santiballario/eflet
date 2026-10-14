@@ -33,6 +33,9 @@ export function AdminLayout() {
         </nav>
         <div className="usuario">
           <div>{usuario.email ?? usuario.rol}</div>
+          <NavLink to="/mi-cuenta" className="nav-link">
+            Mi cuenta
+          </NavLink>
           <button className="nav-link" onClick={logout}>
             ↩ Cerrar sesión
           </button>
