@@ -8,10 +8,17 @@ const login = asyncHandler(async (req, res) => {
   res.json(resultado);
 });
 
-// GET /api/auth/me -> devuelve quien es el usuario del token actual
-// (util para que el frontend sepa que rol tiene sin decodificar el JWT).
+// GET /api/auth/me -> perfil del usuario del token: rol, nombre, contacto
+// y, si es conductor, su licencia.
 const me = asyncHandler(async (req, res) => {
-  res.json({ usuario: req.usuario });
+  const usuario = await authService.perfil(req.usuario.id);
+  res.json({ usuario });
+});
+
+// PATCH /api/auth/me -> el usuario actualiza su telefono
+const actualizarPerfil = asyncHandler(async (req, res) => {
+  const usuario = await authService.actualizarPerfil(req.usuario.id, req.body);
+  res.json({ usuario });
 });
 
 // PUT /api/auth/password -> el usuario logueado cambia su contraseña
@@ -21,4 +28,4 @@ const cambiarPassword = asyncHandler(async (req, res) => {
   res.json({ mensaje: 'Contraseña actualizada.' });
 });
 
-module.exports = { login, me, cambiarPassword };
+module.exports = { login, me, actualizarPerfil, cambiarPassword };
