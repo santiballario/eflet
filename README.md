@@ -34,9 +34,7 @@ Requisito: [Docker Desktop](https://www.docker.com/products/docker-desktop/) abi
 docker compose up --build -d
 ```
 
-La primera vez tarda unos minutos (descarga las imágenes e instala las dependencias). Después abrir http://localhost:5173.
-
-Usuario de prueba: `admin@eflet.com` / `Admin123!`
+La primera vez tarda unos minutos (descarga las imágenes e instala las dependencias). Después abrir http://localhost:5173 y entrar con alguno de los [usuarios de prueba](#usuarios-y-datos-de-prueba).
 
 Levanta tres contenedores:
 
@@ -51,6 +49,19 @@ Levanta tres contenedores:
 | Ver los mensajes del backend | `docker compose logs backend` |
 | Apagar | `docker compose down` |
 | Borrar la base y empezar de cero | `docker compose down -v` |
+
+## Usuarios y datos de prueba
+
+Los seeders cargan un administrador y datos de ejemplo para que la app no arranque vacía: 5 vehículos (uno con la VTV por vencer y otro en mantenimiento), 3 conductores y 5 viajes en distintos estados, con sus paradas. Las fechas se calculan a partir del día en que se crea la base.
+
+| Usuario | Contraseña | Rol | Qué tiene |
+|---|---|---|---|
+| `admin@eflet.com` | `Admin123!` | Administrador | Acceso a todo |
+| `martin.gomez@eflet.com` | `Conductor123!` | Conductor | Un viaje **En Viaje**, con paradas pendientes |
+| `lucia.fernandez@eflet.com` | `Conductor123!` | Conductor | Un viaje **En Depósito**, listo para registrar la salida |
+| `diego.sosa@eflet.com` | `Conductor123!` | Conductor | Solo viajes finalizados |
+
+Los datos de ejemplo no se cargan en la base de los tests automáticos.
 
 ## Levantar sin Docker
 
@@ -70,8 +81,6 @@ npm run dev              # API en http://localhost:3000
 ```
 
 Verificar que funciona: `GET http://localhost:3000/api/health` debe responder `{ "ok": true }`.
-
-Usuario de prueba: `admin@eflet.com` / `Admin123!`
 
 Endpoints, reglas de negocio y cómo probar la API: ver [backend/README.md](backend/README.md).
 
