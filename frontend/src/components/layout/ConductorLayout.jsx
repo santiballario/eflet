@@ -18,9 +18,15 @@ export function ConductorLayout() {
             <CircleUser size={16} aria-hidden="true" />
             Mi cuenta
           </Link>
-          <button className="btn btn-secundario btn-chico" onClick={logout}>
-            <LogOut size={16} aria-hidden="true" />
-            Salir
+          <button className="nav-link" onClick={(e) => {
+            e.preventDefault();
+            const confirmar = window.confirm("¿Seguro que desea salir?");
+            if (confirmar) {
+              logout();
+            }
+          }}>
+            <LogOut size={18} aria-hidden="true" />
+            Cerrar sesión
           </button>
         </div>
       </header>

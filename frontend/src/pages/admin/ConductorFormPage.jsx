@@ -4,6 +4,7 @@ import { actualizarConductor, crearConductor, obtenerConductor } from '@/service
 import { Alerta } from '@/components/ui/Alerta';
 import { Campo } from '@/components/ui/Campo';
 import { Cargando } from '@/components/ui/Cargando';
+import { Eye, EyeOff } from 'lucide-react';
 
 const VACIO = {
   email: '',
@@ -82,15 +83,15 @@ export function ConductorFormPage() {
 
         <h2>Datos personales</h2>
         <div className="fila">
-          <Campo label="Nombre" name="nombre" value={form.nombre} onChange={handleChange} required />
-          <Campo label="Apellido" name="apellido" value={form.apellido} onChange={handleChange} required />
-          <Campo label="DNI" name="dni" value={form.dni} onChange={handleChange} required disabled={esEdicion} />
-          <Campo label="Teléfono" name="telefono" value={form.telefono} onChange={handleChange} required />
+          <Campo label="Nombre" name="nombre" placeholder="Ej: Juan" value={form.nombre} onChange={handleChange} required />
+          <Campo label="Apellido" name="apellido" placeholder="Ej: Perez"  value={form.apellido} onChange={handleChange} required />
+          <Campo label="DNI" name="dni" placeholder="Ej: 31734383" value={form.dni} onChange={handleChange} required disabled={esEdicion} />
+          <Campo label="Teléfono" name="telefono" placeholder="Ej: 2213468374" value={form.telefono} onChange={handleChange} required />
         </div>
 
         <h2>Licencia</h2>
         <div className="fila">
-          <Campo label="Nro. de licencia" name="nro_licencia" value={form.nro_licencia} onChange={handleChange} required />
+          <Campo label="Nro. de licencia" name="nro_licencia" placeholder="Ej: 123456" value={form.nro_licencia} onChange={handleChange} required />
           <Campo
             label="Vencimiento"
             name="vencimiento_licencia"
@@ -113,6 +114,7 @@ export function ConductorFormPage() {
           <Campo
             label="Email"
             name="email"
+            placeholder="Ej: persona@email.com"
             type="email"
             value={form.email}
             onChange={handleChange}
@@ -132,12 +134,13 @@ export function ConductorFormPage() {
                 required
               />
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-5px' }}>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   onClick={() => setMostrarPassword(!mostrarPassword)}
-                  style={{ background: 'none', border: 'none', color: '#3776B6', cursor: 'pointer', fontSize: '0.85rem' }}
+                  style={{ background: 'none', border: 'none', color: '#3776B6', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', marginTop: '5px', float: 'right' }}
+                  title={mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                 >
-                  {mostrarPassword ? 'Ocultar contraseña' : '👁 Mostrar contraseña'}
+                  {mostrarPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
                 </button>
               </div>
             </div>

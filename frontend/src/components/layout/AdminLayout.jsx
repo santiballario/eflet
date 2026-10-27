@@ -39,7 +39,13 @@ export function AdminLayout() {
             <CircleUser size={18} aria-hidden="true" />
             Mi cuenta
           </NavLink>
-          <button className="nav-link" onClick={logout}>
+          <button className="nav-link" onClick={(e) => {
+            e.preventDefault();
+            const confirmar = window.confirm("¿Seguro que desea salir?");
+            if (confirmar) {
+              logout();
+            }
+          }}>
             <LogOut size={18} aria-hidden="true" />
             Cerrar sesión
           </button>

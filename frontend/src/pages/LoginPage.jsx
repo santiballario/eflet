@@ -4,6 +4,7 @@ import { useAuth } from '@/auth/use-auth';
 import { inicioSegunRol } from '@/auth/roles';
 import { Alerta } from '@/components/ui/Alerta';
 import { Campo } from '@/components/ui/Campo';
+import { Eye, EyeOff } from 'lucide-react';
 
 export function LoginPage() {
   const { login } = useAuth();
@@ -64,9 +65,10 @@ export function LoginPage() {
           <button
             type="button"
             onClick={() => setMostrarPassword(!mostrarPassword)}
-            style={{ background: 'none', border: 'none', color: '#3776B6', cursor: 'pointer', fontSize: '0.85rem' }}
+            style={{ background: 'none', border: 'none', color: '#3776B6', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}
+            title={mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
           >
-            {mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+            {mostrarPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
           </button>
         </div>
 

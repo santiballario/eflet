@@ -6,6 +6,8 @@ import { Alerta } from '@/components/ui/Alerta';
 import { Badge } from '@/components/ui/Badge';
 import { Cargando } from '@/components/ui/Cargando';
 import { diasHasta, formatearFecha } from '@/utils/formato';
+import { Search } from 'lucide-react';
+
 
 function EstadoVtv({ fecha }) {
   const dias = diasHasta(fecha);
@@ -44,7 +46,9 @@ export function VehiculosPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
           <h1 style={{ margin: 0 }}>Gestión de Flota</h1>
           <div style={{ position: 'relative' }}>
-            <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }}>🔍</span>
+            <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#666', display: 'flex' }}>
+              <Search size={18} aria-hidden="true" />
+            </span>
             <input
               type="text"
               placeholder="Buscar por patente..."
