@@ -1,6 +1,8 @@
 import { Link } from 'react-router';
+import { useTitulo } from '@/hooks/use-titulo';
 
 export function NotFoundPage() {
+  useTitulo('Página no encontrada');
   return (
     <div className="login-fondo">
       <div className="login-card" style={{ textAlign: 'center' }}>

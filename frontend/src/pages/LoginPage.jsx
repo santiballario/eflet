@@ -5,8 +5,10 @@ import { inicioSegunRol } from '@/auth/roles';
 import { Alerta } from '@/components/ui/Alerta';
 import { Campo } from '@/components/ui/Campo';
 import { Eye, EyeOff } from 'lucide-react';
+import { useTitulo } from '@/hooks/use-titulo';
 
 export function LoginPage() {
+  useTitulo('Ingresar');
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -36,7 +38,10 @@ export function LoginPage() {
     <div className="login-fondo">
       <form className="login-card formulario" onSubmit={handleSubmit}>
         <div>
-          <div className="marca">EFLET</div>
+          <div className="marca">
+            <img src="/favicon.svg" alt="" width="36" height="36" />
+            EFLET
+          </div>
           <div className="subtitulo">Sistema de Control Logístico</div>
         </div>
 

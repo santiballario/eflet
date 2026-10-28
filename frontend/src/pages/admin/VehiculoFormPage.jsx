@@ -4,6 +4,8 @@ import { actualizarVehiculo, crearVehiculo, obtenerVehiculo } from '@/services/v
 import { Alerta } from '@/components/ui/Alerta';
 import { Campo } from '@/components/ui/Campo';
 import { Cargando } from '@/components/ui/Cargando';
+import { useTitulo } from '@/hooks/use-titulo';
+import { useAvisos } from '@/components/ui/avisos-context';
 
 const VACIO = {
   patente: '',
@@ -18,6 +20,8 @@ const VACIO = {
 export function VehiculoFormPage() {
   const { id } = useParams(); // undefined cuando es "nuevo"
   const esEdicion = Boolean(id);
+  const avisar = useAvisos();
+  useTitulo(esEdicion ? 'Editar vehículo' : 'Nuevo vehículo');
   const navigate = useNavigate();
 
   const [form, setForm] = useState(VACIO);
@@ -56,6 +60,7 @@ export function VehiculoFormPage() {
     try {
       if (esEdicion) await actualizarVehiculo(id, datos);
       else await crearVehiculo(datos);
+      avisar(esEdicion ? 'Cambios guardados.' : `Vehículo ${datos.patente} agregado a la flota.`);
       navigate('/vehiculos');
     } catch (err) {
       // 400 (dato invalido) o 409 (patente repetida): mostramos el mensaje del backend

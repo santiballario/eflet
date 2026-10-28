@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Printer } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { useFetch } from '@/hooks/use-fetch';
 import { agregarDestino, eliminarDestino, eliminarViaje, obtenerViaje } from '@/services/viajes';
@@ -7,7 +8,11 @@ import { Badge } from '@/components/ui/Badge';
 import { Campo } from '@/components/ui/Campo';
 import { Cargando } from '@/components/ui/Cargando';
 import { ListaDestinos } from '@/components/ListaDestinos';
+import { LineaEstados } from '@/components/LineaEstados';
+import { useConfirmar } from '@/components/ui/confirmar-context';
 import { descripcionVehiculo, formatearFechaHora, nombreConductor } from '@/utils/formato';
+import { useTitulo } from '@/hooks/use-titulo';
+import { useAvisos } from '@/components/ui/avisos-context';
 
 function Dato({ etiqueta, children }) {
   return (
@@ -18,13 +23,21 @@ function Dato({ etiqueta, children }) {
   );
 }
 
+// El viaje se conserva aunque el conductor o el vehiculo se hayan dado de baja despues
+function DeBaja() {
+  return <div className="chico texto-suave">Dado de baja</div>;
+}
+
 export function ViajeDetallePage() {
   const { id } = useParams();
+  useTitulo(`Hoja de ruta #${id}`);
   const navigate = useNavigate();
   const { data: viaje, error, cargando, recargar } = useFetch(() => obtenerViaje(id), [id]);
 
   const [nuevaParada, setNuevaParada] = useState({ direccion_farmacia: '', cantidad_bultos: 1 });
   const [errorAccion, setErrorAccion] = useState('');
+  const confirmar = useConfirmar();
+  const avisar = useAvisos();
 
   if (cargando) return <Cargando />;
   if (error) return <Alerta>{error.message}</Alerta>;
@@ -42,10 +55,17 @@ export function ViajeDetallePage() {
     }
   }
 
-  function handleEliminarViaje() {
-    if (!window.confirm(`¿Eliminar la hoja de ruta #${viaje.id}?`)) return;
+  async function handleEliminarViaje() {
+    const seguro = await confirmar({
+      titulo: `¿Eliminar la hoja de ruta #${viaje.id}?`,
+      mensaje: 'El vehículo y el conductor quedan libres para otro viaje.',
+      textoConfirmar: 'Eliminar',
+      peligro: true,
+    });
+    if (!seguro) return;
     ejecutar(async () => {
       await eliminarViaje(viaje.id);
+      avisar(`Hoja de ruta #${viaje.id} eliminada.`);
       navigate('/viajes');
     });
   }
@@ -72,10 +92,14 @@ export function ViajeDetallePage() {
         <h1>
           Hoja de ruta #{viaje.id} <Badge estado={viaje.EstadoViaje.descripcion} />
         </h1>
-        <div className="acciones">
+        <div className="acciones no-imprimir">
           <Link to="/viajes" className="btn btn-secundario">
             Volver
           </Link>
+          <button className="btn btn-secundario" onClick={() => window.print()}>
+            <Printer size={18} aria-hidden="true" />
+            Imprimir
+          </button>
           {editable && (
             <button className="btn btn-peligro" onClick={handleEliminarViaje}>
               Eliminar
@@ -86,9 +110,19 @@ export function ViajeDetallePage() {
 
       <Alerta>{errorAccion}</Alerta>
 
+      <div className="card">
+        <LineaEstados viaje={viaje} />
+      </div>
+
       <div className="card datos">
-        <Dato etiqueta="Vehículo">{descripcionVehiculo(viaje.Vehiculo)}</Dato>
-        <Dato etiqueta="Conductor">{nombreConductor(viaje.Conductor)}</Dato>
+        <Dato etiqueta="Vehículo">
+          {descripcionVehiculo(viaje.Vehiculo)}
+          {viaje.Vehiculo?.fecha_eliminacion && <DeBaja />}
+        </Dato>
+        <Dato etiqueta="Conductor">
+          {nombreConductor(viaje.Conductor)}
+          {viaje.Conductor?.fecha_eliminacion && <DeBaja />}
+        </Dato>
         <Dato etiqueta="Creado">{formatearFechaHora(viaje.fecha_creacion)}</Dato>
         <Dato etiqueta="Salida">
           {viaje.fecha_salida && `${formatearFechaHora(viaje.fecha_salida)} · ${viaje.km_salida} km`}
@@ -116,7 +150,7 @@ export function ViajeDetallePage() {
         />
 
         {editable && (
-          <form className="parada-form" onSubmit={handleAgregarDestino} style={{ marginTop: '1rem' }}>
+          <form className="parada-form no-imprimir" onSubmit={handleAgregarDestino} style={{ marginTop: '1rem' }}>
             <Campo
               label="Nueva parada - Dirección"
               value={nuevaParada.direccion_farmacia}
@@ -137,6 +171,12 @@ export function ViajeDetallePage() {
             <button className="btn">+ Añadir</button>
           </form>
         )}
+      </div>
+
+      {/* Solo en papel: espacio para firmar al salir y al volver */}
+      <div className="solo-imprimir firmas">
+        <div>Firma del conductor</div>
+        <div>Firma del responsable de depósito</div>
       </div>
     </>
   );
