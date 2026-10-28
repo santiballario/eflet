@@ -22,6 +22,20 @@ export function diasHasta(fechaIso) {
   return Math.round((objetivo - hoy) / 86400000);
 }
 
+// Dia (en la hora de la compu) de una fecha con hora, como 'YYYY-MM-DD':
+// el mismo formato que devuelve un <input type="date">, para compararlos.
+export function diaLocal(fechaIso) {
+  if (!fechaIso) return null;
+  const d = new Date(fechaIso);
+  const mes = String(d.getMonth() + 1).padStart(2, '0');
+  const dia = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${mes}-${dia}`;
+}
+
+export function hoyLocal() {
+  return diaLocal(new Date().toISOString());
+}
+
 export function nombreConductor(conductor) {
   const persona = conductor?.Usuario?.Persona;
   return persona ? `${persona.nombre} ${persona.apellido}` : '-';

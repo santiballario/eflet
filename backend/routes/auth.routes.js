@@ -8,10 +8,12 @@ const { requireAuth } = require('../middlewares/auth');
 const router = Router();
 
 // Limite mas estricto solo para login: frena intentos de fuerza bruta
-// sobre contraseñas sin afectar al resto de la API.
+// sobre contraseñas sin afectar al resto de la API. Solo cuentan los intentos
+// fallidos: entrar y salir con la contraseña correcta no bloquea a nadie.
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
   max: 10,
+  skipSuccessfulRequests: true,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: true, mensaje: 'Demasiados intentos. Intenta mas tarde.', codigo: 429 },
@@ -22,6 +24,7 @@ const loginLimiter = rateLimit({
 const passwordLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
+  skipSuccessfulRequests: true,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: true, mensaje: 'Demasiados intentos. Intenta mas tarde.', codigo: 429 },

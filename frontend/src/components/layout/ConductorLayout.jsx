@@ -10,24 +10,28 @@ export function ConductorLayout() {
   return (
     <>
       <header className="conductor-header">
-        <Link to="/mis-viajes" className="marca" style={{ color: 'inherit', textDecoration: 'none' }}>
-          EFLET
-        </Link>
-        <div className="acciones">
-          <Link to="/mi-cuenta" className="btn btn-secundario btn-chico">
-            <CircleUser size={16} aria-hidden="true" />
-            Mi cuenta
+        {/* El contenido del encabezado tiene el mismo ancho maximo que la pagina,
+            asi en la compu el logo y los botones quedan alineados con lo de abajo */}
+        <div className="conductor-header-contenido">
+          <Link to="/mis-viajes" className="marca">
+            EFLET
           </Link>
-          <button className="nav-link" onClick={(e) => {
-            e.preventDefault();
-            const confirmar = window.confirm("¿Seguro que desea salir?");
-            if (confirmar) {
-              logout();
-            }
-          }}>
-            <LogOut size={18} aria-hidden="true" />
-            Cerrar sesión
-          </button>
+          <div className="acciones">
+            <Link to="/mi-cuenta" className="btn btn-secundario btn-chico">
+              <CircleUser size={16} aria-hidden="true" />
+              Mi cuenta
+            </Link>
+            {/* Mismo estilo que "Mi cuenta": botones claros sobre el encabezado azul */}
+            <button
+              className="btn btn-secundario btn-chico"
+              onClick={() => {
+                if (window.confirm('¿Seguro que desea salir?')) logout();
+              }}
+            >
+              <LogOut size={16} aria-hidden="true" />
+              Salir
+            </button>
+          </div>
         </div>
       </header>
       <main className="conductor-main">

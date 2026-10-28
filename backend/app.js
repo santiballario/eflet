@@ -29,7 +29,7 @@ app.use(
   '/api',
   rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
-    max: 200,
+    max: 1000, // cada pantalla hace varios pedidos: con 200 se llegaba usando la app normal
     standardHeaders: true,
     legacyHeaders: false,
   })
