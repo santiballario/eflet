@@ -27,6 +27,7 @@ export function HojaDeRutaPage() {
   const [km, setKm] = useState('');
   const [noEntregado, setNoEntregado] = useState(null); // destino que se esta marcando como "No entregado"
   const [motivoId, setMotivoId] = useState('');
+  const [detalleMotivo, setDetalleMotivo] = useState(''); // solo cuando el motivo es "Otro"
   const [errorAccion, setErrorAccion] = useState('');
   const [enviando, setEnviando] = useState(false);
 
@@ -43,6 +44,7 @@ export function HojaDeRutaPage() {
       setKm('');
       setNoEntregado(null);
       setMotivoId('');
+      setDetalleMotivo('');
     } catch (err) {
       // ej: 409 "El km de salida no puede ser menor al ultimo km de regreso"
       setErrorAccion(err.message);
@@ -61,9 +63,14 @@ export function HojaDeRutaPage() {
     ejecutar(() => registrarRegreso(viaje.id, Number(km)));
   }
 
+  // "Otro" es para lo que no esta en la lista: ahi el conductor escribe que paso
+  const esMotivoOtro = motivos?.find((m) => m.id === Number(motivoId))?.descripcion === 'Otro';
+
   function handleNoEntregado(e) {
     e.preventDefault();
-    ejecutar(() => registrarEntrega(viaje.id, noEntregado.id, 'No entregado', Number(motivoId)));
+    ejecutar(() =>
+      registrarEntrega(viaje.id, noEntregado.id, 'No entregado', Number(motivoId), esMotivoOtro ? detalleMotivo : undefined),
+    );
   }
 
   // Botones grandes de cada parada pendiente (solo mientras el viaje esta En Viaje).
@@ -81,6 +88,17 @@ export function HojaDeRutaPage() {
               </option>
             ))}
           </Campo>
+          {esMotivoOtro && (
+            <Campo
+              label="¿Qué pasó?"
+              placeholder="Ej: el portón estaba cerrado con candado"
+              maxLength={200}
+              value={detalleMotivo}
+              onChange={(e) => setDetalleMotivo(e.target.value)}
+              required
+              autoFocus
+            />
+          )}
           <div className="acciones">
             <button type="button" className="btn btn-secundario" onClick={() => setNoEntregado(null)}>
               Cancelar
@@ -146,6 +164,7 @@ export function HojaDeRutaPage() {
                 type="number"
                 inputMode="numeric"
                 min="0"
+            max="2000000"
                 placeholder="Ej: 15000"
                 value={km}
                 onChange={(e) => setKm(e.target.value)}
@@ -166,6 +185,7 @@ export function HojaDeRutaPage() {
                 type="number"
                 inputMode="numeric"
                 min={viaje.km_salida ?? 0}
+            max="2000000"
                 placeholder={`Mayor o igual a ${viaje.km_salida} km`}
                 value={km}
                 onChange={(e) => setKm(e.target.value)}

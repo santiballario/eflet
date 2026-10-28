@@ -129,6 +129,7 @@ export function ViajeDetallePage() {
               label="Bultos"
               type="number"
               min="1"
+              max="1000"
               value={nuevaParada.cantidad_bultos}
               onChange={(e) => setNuevaParada({ ...nuevaParada, cantidad_bultos: e.target.value })}
               required
