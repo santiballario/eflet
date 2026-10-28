@@ -95,6 +95,7 @@ export function VehiculosPage() {
                   <th>Patente</th>
                   <th>Marca / Modelo</th>
                   <th>Capacidad</th>
+                  <th>Último km</th>
                   <th>VTV</th>
                   <th>Estado</th>
                   <th></th>
@@ -110,6 +111,10 @@ export function VehiculosPage() {
                       {v.marca} {v.modelo}
                     </td>
                     <td data-label="Capacidad">{Number(v.cantidad_maxima)} kg</td>
+                    {/* km registrado al volver de su ultimo viaje (lo calcula el backend) */}
+                    <td data-label="Último km">
+                      {v.ultimo_km != null ? `${v.ultimo_km.toLocaleString('es-AR')} km` : <span className="texto-suave">Sin viajes</span>}
+                    </td>
                     <td data-label="VTV">
                       <span>
                         {formatearFecha(v.vencimiento_vtv)} <EstadoVtv fecha={v.vencimiento_vtv} />

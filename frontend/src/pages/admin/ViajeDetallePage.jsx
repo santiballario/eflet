@@ -1,8 +1,12 @@
 import { useState } from 'react';
-import { Printer } from 'lucide-react';
+import { Pencil, Printer } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { useFetch } from '@/hooks/use-fetch';
-import { agregarDestino, eliminarDestino, eliminarViaje, obtenerViaje } from '@/services/viajes';
+import { actualizarViaje, agregarDestino, eliminarDestino, eliminarViaje, listarViajes, obtenerViaje } from '@/services/viajes';
+import { listarVehiculos } from '@/services/vehiculos';
+import { listarConductores } from '@/services/conductores';
+import { OpcionesConductor, OpcionesVehiculo } from '@/components/OpcionesAsignacion';
+import { ocupadosPorViajes } from '@/utils/aptitud';
 import { Alerta } from '@/components/ui/Alerta';
 import { Badge } from '@/components/ui/Badge';
 import { Campo } from '@/components/ui/Campo';
@@ -28,6 +32,60 @@ function DeBaja() {
   return <div className="chico texto-suave">Dado de baja</div>;
 }
 
+// Cambiar el vehiculo o el conductor de un viaje que todavia esta En Depósito.
+// Las listas se piden recien al abrir el formulario.
+function EditarAsignacion({ viaje, alGuardar, alCancelar }) {
+  const vehiculos = useFetch(listarVehiculos);
+  const conductores = useFetch(listarConductores);
+  const viajes = useFetch(() => listarViajes());
+  const [vehiculoId, setVehiculoId] = useState(String(viaje.vehiculo_id));
+  const [conductorId, setConductorId] = useState(String(viaje.conductor_id));
+  const [error, setError] = useState('');
+  const [enviando, setEnviando] = useState(false);
+
+  if (vehiculos.cargando || conductores.cargando || viajes.cargando) return <Cargando />;
+
+  // Este mismo viaje no cuenta como "ocupado": su vehiculo y su conductor se pueden mantener
+  const vehiculosOcupados = ocupadosPorViajes(viajes.data, 'vehiculo_id', viaje.id);
+  const conductoresOcupados = ocupadosPorViajes(viajes.data, 'conductor_id', viaje.id);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError('');
+    setEnviando(true);
+    try {
+      await actualizarViaje(viaje.id, { vehiculo_id: Number(vehiculoId), conductor_id: Number(conductorId) });
+      alGuardar();
+    } catch (err) {
+      setError(err.message);
+      setEnviando(false);
+    }
+  }
+
+  return (
+    <form className="card formulario" onSubmit={handleSubmit}>
+      <h2 style={{ margin: 0 }}>Cambiar vehículo o conductor</h2>
+      <Alerta>{error || vehiculos.error?.message || conductores.error?.message}</Alerta>
+      <div className="fila">
+        <Campo label="Vehículo" as="select" value={vehiculoId} onChange={(e) => setVehiculoId(e.target.value)} required>
+          <OpcionesVehiculo vehiculos={vehiculos.data ?? []} ocupados={vehiculosOcupados} />
+        </Campo>
+        <Campo label="Conductor" as="select" value={conductorId} onChange={(e) => setConductorId(e.target.value)} required>
+          <OpcionesConductor conductores={conductores.data ?? []} ocupados={conductoresOcupados} />
+        </Campo>
+      </div>
+      <div className="acciones">
+        <button type="button" className="btn btn-secundario" onClick={alCancelar}>
+          Cancelar
+        </button>
+        <button className="btn" disabled={enviando}>
+          {enviando ? 'Guardando...' : 'Guardar cambios'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
 export function ViajeDetallePage() {
   const { id } = useParams();
   useTitulo(`Hoja de ruta #${id}`);
@@ -36,6 +94,7 @@ export function ViajeDetallePage() {
 
   const [nuevaParada, setNuevaParada] = useState({ direccion_farmacia: '', cantidad_bultos: 1 });
   const [errorAccion, setErrorAccion] = useState('');
+  const [editando, setEditando] = useState(false);
   const confirmar = useConfirmar();
   const avisar = useAvisos();
 
@@ -100,6 +159,12 @@ export function ViajeDetallePage() {
             <Printer size={18} aria-hidden="true" />
             Imprimir
           </button>
+          {editable && !editando && (
+            <button className="btn btn-secundario" onClick={() => setEditando(true)}>
+              <Pencil size={18} aria-hidden="true" />
+              Editar
+            </button>
+          )}
           {editable && (
             <button className="btn btn-peligro" onClick={handleEliminarViaje}>
               Eliminar
@@ -113,6 +178,18 @@ export function ViajeDetallePage() {
       <div className="card">
         <LineaEstados viaje={viaje} />
       </div>
+
+      {editando && (
+        <EditarAsignacion
+          viaje={viaje}
+          alCancelar={() => setEditando(false)}
+          alGuardar={() => {
+            setEditando(false);
+            avisar(`Hoja de ruta #${viaje.id} actualizada.`);
+            recargar();
+          }}
+        />
+      )}
 
       <div className="card datos">
         <Dato etiqueta="Vehículo">
