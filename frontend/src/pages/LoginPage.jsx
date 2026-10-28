@@ -46,6 +46,7 @@ export function LoginPage() {
           label="Email"
           type="email"
           autoComplete="username"
+          placeholder="nombre@eflet.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -56,21 +57,16 @@ export function LoginPage() {
           label="Contraseña"
           type={mostrarPassword ? "text" : "password"}
           autoComplete="current-password"
+          placeholder="Tu contraseña"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '-10px', marginBottom: '15px' }}>
-          <button
-            type="button"
-            onClick={() => setMostrarPassword(!mostrarPassword)}
-            style={{ background: 'none', border: 'none', color: '#3776B6', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}
-            title={mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
-          >
-            {mostrarPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
-          </button>
-        </div>
+        <button type="button" className="ver-password" onClick={() => setMostrarPassword(!mostrarPassword)}>
+          {mostrarPassword ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
+          {mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+        </button>
 
         <button className="btn btn-grande" disabled={enviando}>
           {enviando ? 'Ingresando...' : 'Ingresar'}

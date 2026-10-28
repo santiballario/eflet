@@ -22,9 +22,14 @@
   --advertencia: #f59e0b;
   --error: #ef4444;
   --error-oscuro: #dc2626;      /* blanco sobre este rojo: 4,8:1 */
-  --gradiente: linear-gradient(135deg, #3776b6 0%, #6d5bd0 100%);
-  --radio: 10px;
-  --sombra: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
+  --gradiente: linear-gradient(135deg, #3776b6 0%, #6d5bd0 100%);   /* solo en el login, como el mockup */
+  /* Encabezados: el mismo degradé del login pero mas suave (indigo apagado en vez de violeta).
+     Blanco encima: 4,7:1 en el azul y 5,1:1 en el indigo */
+  --gradiente-sobrio: linear-gradient(120deg, #3776b6 0%, #5468c4 100%);
+  --gradiente-inicio: linear-gradient(120deg, #3776b6 0%, #5468c4 55%, #6a5fcb 100%); /* el banner del inicio, un poco mas de violeta; blanco encima: 4,7 a 5,1:1 */
+  --radio: 8px;
+  --sombra: 0 1px 2px rgba(16, 24, 40, 0.06);
+  --sombra-hover: 0 4px 12px rgba(16, 24, 40, 0.1);
   font-family: 'Roboto', system-ui, sans-serif;
   color: var(--texto);
   background: var(--fondo);
@@ -32,9 +37,9 @@
 
 * { box-sizing: border-box; }
 body { margin: 0; min-height: 100vh; background: var(--fondo); }
-h1, h2, h3 { margin: 0 0 0.75rem; font-weight: 500; }
-h1 { font-size: 1.6rem; }
-h2 { font-size: 1.2rem; }
+h1, h2, h3 { margin: 0 0 0.75rem; font-weight: 600; letter-spacing: -0.01em; }
+h1 { font-size: 1.5rem; }
+h2 { font-size: 1.1rem; }
 a { color: var(--primario); }
 button, input, select, textarea { font: inherit; }
 
@@ -55,7 +60,9 @@ button, input, select, textarea { font: inherit; }
 /* Iconos (lucide-react): no se achican cuando el texto de al lado es largo */
 .nav-link svg, .btn svg { flex-shrink: 0; }
 .link-volver { display: inline-flex; align-items: center; gap: 0.3rem; }
-.nav-link.active { background: var(--primario); color: var(--blanco); }
+/* Opcion activa: fondo celeste suave y una linea azul a la izquierda.
+   Texto azul oscuro sobre el celeste: 6,2:1 */
+.nav-link.active { background: #e8f0f9; color: var(--primario-oscuro); font-weight: 500; box-shadow: inset 3px 0 0 var(--primario); }
 .sidebar .usuario { font-size: 0.85rem; color: var(--texto-suave); padding: 0.75rem; border-top: 1px solid var(--borde); }
 .contenido { flex: 1; min-width: 0; padding: 1.5rem; max-width: 1200px; margin: 0 auto; }
 
@@ -78,15 +85,20 @@ button, input, select, textarea { font: inherit; }
     flex: 1; min-width: 0; flex-direction: column; gap: 0.15rem; font-size: 0.72rem;
     padding: 0.4rem 0.2rem; text-align: center;
   }
-  .bottom-nav .nav-link:hover { transform: none; }
+  .bottom-nav .nav-link.active { box-shadow: inset 0 3px 0 var(--primario); border-radius: 0 0 8px 8px; }
 }
 
 /* ---------- Layout del Conductor (pensado para celular) ---------- */
-.conductor-header {
-  background: var(--gradiente); color: var(--blanco); padding: 1rem;
-  display: flex; justify-content: space-between; align-items: center;
+.conductor-header { background: var(--gradiente-sobrio); color: var(--blanco); }
+/* Mismo ancho maximo que .conductor-main: el logo y los botones quedan
+   alineados con el contenido. flex-wrap: si en una pantalla angosta no entran
+   el logo y los dos botones, los botones bajan a otra linea en vez de
+   ensanchar la pagina (eso hacia que se pudiera deslizar de costado). */
+.conductor-header-contenido {
+  max-width: 1100px; margin: 0 auto; padding: 0.9rem 1rem;
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;
 }
-.conductor-header .marca { font-weight: 700; letter-spacing: 1px; font-size: 1.2rem; }
+.conductor-header .marca { font-weight: 700; letter-spacing: 1px; font-size: 1.2rem; color: inherit; text-decoration: none; }
 .conductor-header .btn-secundario { background: transparent; color: var(--blanco); border-color: rgba(255, 255, 255, 0.6); }
 /* En el celular ocupa todo el ancho; en la compu se abre hasta 1100px y el
    contenido se reparte en dos columnas (ver .conductor-columnas) */
@@ -96,11 +108,13 @@ button, input, select, textarea { font: inherit; }
 .encabezado { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
 .encabezado h1 { margin: 0; }
 
-.card { background: var(--blanco); border-radius: var(--radio); box-shadow: var(--sombra); padding: 1.25rem; margin-bottom: 1rem; }
-/* Encabezado del Panel de Control (como el mockup): degradé con el titulo en blanco.
-   Blanco sobre el degradé: 4,7:1 en el extremo azul y 5,2:1 en el violeta. */
+.card {
+  background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--radio);
+  box-shadow: var(--sombra); padding: 1.25rem; margin-bottom: 1rem;
+}
+/* Encabezado del Panel de Control: degradé azul con el titulo en blanco */
 .bienvenida {
-  background: var(--gradiente); color: var(--blanco); border-radius: var(--radio);
+  background: var(--gradiente-inicio); color: var(--blanco); border-radius: var(--radio);
   padding: 1.5rem; margin-bottom: 1rem;
   display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;
 }
@@ -113,7 +127,7 @@ button, input, select, textarea { font: inherit; }
 /* Tarjetas de numeros: todas iguales; el color solo aparece si hay algo para mirar */
 .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem; }
 .stat {
-  display: block; background: var(--blanco); border-radius: var(--radio); box-shadow: var(--sombra);
+  display: block; background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--radio); box-shadow: var(--sombra);
   padding: 1.25rem; color: inherit; text-decoration: none;
 }
 .stat .titulo { color: var(--texto-suave); font-size: 0.9rem; }
@@ -130,7 +144,7 @@ button, input, select, textarea { font: inherit; }
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; border: 1px solid transparent;
-  border-radius: 8px; padding: 0.55rem 1rem; cursor: pointer; font-weight: 500; text-decoration: none;
+  border-radius: 6px; padding: 0.55rem 1rem; cursor: pointer; font-weight: 500; text-decoration: none;
   background: var(--primario); color: var(--blanco);
 }
 .btn:hover { background: var(--primario-oscuro); }
@@ -143,23 +157,21 @@ button, input, select, textarea { font: inherit; }
 .btn-exito:hover { background: #065f46; }
 .btn-chico { padding: 0.3rem 0.6rem; font-size: 0.85rem; }
 /* Botones grandes para usar con el dedo (vista del conductor). */
-.btn-grande { width: 100%; padding: 1rem; font-size: 1.05rem; border-radius: 12px; }
+.btn-grande { width: 100%; padding: 1rem; font-size: 1.05rem; border-radius: 10px; }
 .acciones { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 
 /* ---------- Efectos al pasar el mouse (hover) ----------
- * Para que se note que algo es clickeable: se agranda apenas, se oscurece un
- * poco el color y aparece una sombra. La transicion lo hace suave.
+ * Para que se note que algo es clickeable: se oscurece un poco el color y
+ * aparece una sombra suave. La transicion lo hace suave.
  */
 .btn, .nav-link, .stat, a.card, tbody tr {
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  transition: box-shadow 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
 }
-.btn:hover:not(:disabled) { transform: translateY(-1px) scale(1.02); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12); }
-.btn:active:not(:disabled) { transform: scale(0.98); box-shadow: none; }   /* al hacer clic, se "hunde" */
-.btn-grande:hover:not(:disabled) { transform: translateY(-1px); }          /* ocupa todo el ancho: no se agranda */
-.nav-link:hover { transform: translateX(2px); }
-.nav-link.active:hover { transform: none; background: var(--primario-oscuro); }
-/* Tarjetas que son links (Panel de Control y viajes del conductor): se levantan */
-a.stat:hover, a.card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); }
+.btn:hover:not(:disabled) { box-shadow: 0 2px 6px rgba(16, 24, 40, 0.15); }
+.btn:active:not(:disabled) { box-shadow: none; filter: brightness(0.95); }   /* al hacer clic */
+.nav-link.active:hover { background: #dce8f5; }
+/* Tarjetas que son links (Panel de Control y viajes del conductor) */
+a.stat:hover, a.card:hover { border-color: var(--primario); box-shadow: var(--sombra-hover); }
 /* Botones claros sobre el degradé del conductor: no tienen que ponerse blancos */
 .conductor-header .btn-secundario:hover { background: rgba(255, 255, 255, 0.18); }
 a:not(.btn):not(.nav-link):not(.stat):not(.card):hover { text-decoration-thickness: 2px; }
@@ -170,8 +182,7 @@ a:not(.btn):not(.nav-link):not(.stat):not(.card):hover { text-decoration-thickne
 }
 
 /* Si la persona configuro su sistema para reducir animaciones, los cambios son
-   instantaneos (sin transicion). El leve agrandado se mantiene: es de 1 a 3 px,
-   no es el tipo de movimiento que esa opcion busca evitar. */
+   instantaneos (sin transicion). */
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
@@ -179,7 +190,10 @@ a:not(.btn):not(.nav-link):not(.stat):not(.card):hover { text-decoration-thickne
 .tabla-contenedor { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 0.93rem; }
 th, td { text-align: left; padding: 0.7rem 0.6rem; border-bottom: 1px solid var(--borde); white-space: nowrap; }
-th { color: var(--texto-suave); font-weight: 500; font-size: 0.8rem; text-transform: uppercase; }
+th {
+  color: var(--texto-suave); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;
+  background: #f9fafb;
+}
 tbody tr:hover td { background: #eef4fb; }   /* celeste suave: se ve que fila esta bajo el mouse */
 
 /* ---------- Tablas en pantallas chicas: cada fila es una tarjeta ----------
@@ -242,6 +256,48 @@ tbody tr:hover td { background: #eef4fb; }   /* celeste suave: se ve que fila es
 .login-card { background: var(--blanco); border-radius: 16px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2); padding: 2rem; width: 100%; max-width: 380px; }
 .login-card .marca { text-align: center; font-size: 2rem; font-weight: 700; color: var(--primario); letter-spacing: 2px; }
 .login-card .subtitulo { text-align: center; color: var(--texto-suave); margin-bottom: 1.5rem; }
+/* Boton "Mostrar contraseña" debajo del campo, alineado a la derecha */
+.ver-password {
+  justify-self: end; margin-top: -0.6rem; display: inline-flex; align-items: center; gap: 0.35rem;
+  background: none; border: none; color: var(--primario); cursor: pointer; font-size: 0.85rem; padding: 0.2rem;
+}
+.ver-password:hover { text-decoration: underline; }
+
+/* ---------- Filtros de Hojas de Ruta (estado y dia) ---------- */
+.filtros { display: flex; align-items: flex-end; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.filtro { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.8rem; font-weight: 500; color: var(--texto-suave); }
+.filtro select, .filtro input {
+  padding: 0.45rem 0.6rem; border: 1px solid var(--borde-campo); border-radius: 6px; background: var(--blanco);
+  color: var(--texto); font-size: 0.93rem; min-width: 160px;
+}
+.filtro select:focus, .filtro input:focus { outline: 2px solid var(--primario); outline-offset: -1px; }
+.filtro-check { display: flex; align-items: center; gap: 0.4rem; font-size: 0.93rem; padding-bottom: 0.5rem; cursor: pointer; }
+.filtro-check input { width: 18px; height: 18px; accent-color: var(--primario); }
+.filtros-total { margin-left: auto; padding-bottom: 0.5rem; }
+
+/* Selector de dos opciones (Hoy / Total) */
+.segmentado { display: inline-flex; border: 1px solid var(--borde-campo); border-radius: 6px; overflow: hidden; }
+.segmentado button {
+  background: var(--blanco); color: var(--texto); border: none; padding: 0.3rem 0.8rem; font-size: 0.85rem; cursor: pointer;
+}
+.segmentado button + button { border-left: 1px solid var(--borde-campo); }
+.segmentado button[aria-pressed='true'] { background: var(--primario); color: var(--blanco); }
+.resumen-encabezado { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin: 1.25rem 0 0.6rem; }
+.resumen-encabezado h2 { margin: 0; font-size: 1rem; }
+@media (min-width: 768px) { .panel-resumen .resumen-encabezado { margin-top: 0; } }
+
+/* ---------- Buscador de las listas (Flota y Conductores) ---------- */
+.titulo-con-buscador { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.buscador { position: relative; }
+.buscador svg { position: absolute; left: 0.6rem; top: 50%; transform: translateY(-50%); color: var(--placeholder); }
+.buscador input {
+  padding: 0.5rem 0.7rem 0.5rem 2.1rem; border: 1px solid var(--borde-campo); border-radius: 6px;
+  width: 260px; max-width: 100%; background: var(--blanco); color: var(--texto);
+}
+.buscador input:focus { outline: 2px solid var(--primario); outline-offset: -1px; }
+@media (max-width: 600px) {
+  .titulo-con-buscador, .buscador, .buscador input { width: 100%; }
+}
 
 /* ---------- Hoja de ruta ---------- */
 .destino { display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.85rem 0; border-bottom: 1px solid var(--borde); }
@@ -267,13 +323,38 @@ tbody tr:hover td { background: #eef4fb; }   /* celeste suave: se ve que fila es
 .saludo h1 { margin-bottom: 0.1rem; }
 .saludo p { margin: 0 0 1rem; }
 .viaje-actual { border-top: 4px solid var(--primario); }
-/* Dos columnas en pantallas grandes; en el celular una debajo de la otra */
-.conductor-columnas { display: grid; grid-template-columns: 1fr; gap: 0 1.5rem; align-items: start; }
-@media (min-width: 900px) {
-  .conductor-columnas { grid-template-columns: 1fr 1fr; }
+
+/* Inicio del conductor. Celular: una columna (viaje, resumen, historial).
+   Tablet y compu: viaje y resumen lado a lado, historial abajo a todo el ancho. */
+.conductor-panel {
+  display: grid; grid-template-columns: 1fr; gap: 0 1.5rem; align-items: start;
+  grid-template-areas: "actual" "resumen" "historial";
+}
+.panel-actual { grid-area: actual; }
+.panel-resumen { grid-area: resumen; }
+.panel-historial { grid-area: historial; }
+@media (min-width: 768px) {
+  .conductor-panel { grid-template-columns: 1fr 1fr; grid-template-areas: "actual resumen" "historial historial"; }
   .subtitulo-seccion.primero { margin-top: 0; }
 }
-.tarjeta-viaje { display: block; color: inherit; text-decoration: none; }
+@media (min-width: 1024px) { .conductor-panel { grid-template-columns: 3fr 2fr; } }
+
+/* Hoja de ruta: avance y acciones a la izquierda, paradas a la derecha */
+.conductor-columnas { display: grid; grid-template-columns: 1fr; gap: 0 1.5rem; align-items: start; }
+@media (min-width: 768px) { .conductor-columnas { grid-template-columns: 2fr 3fr; } }
+
+/* Lista compacta de viajes: una fila por viaje dentro de una tarjeta */
+.lista-viajes { padding: 0; overflow: hidden; }
+.fila-viaje {
+  display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--borde); color: inherit; text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+.fila-viaje:last-child { border-bottom: none; }
+.fila-viaje:hover { background: #f9fafb; }
+.fila-viaje-datos { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.15rem; }
+.fila-viaje-estado { display: flex; flex-direction: column; align-items: flex-end; gap: 0.25rem; text-align: right; }
+.fila-viaje-flecha { color: var(--placeholder); flex-shrink: 0; }
 /* En la pantalla del conductor el resumen va siempre en 3 columnas, como en el celular */
 .conductor-main .stats { gap: 0.5rem; }
 .conductor-main .stat { padding: 0.75rem; text-align: center; }

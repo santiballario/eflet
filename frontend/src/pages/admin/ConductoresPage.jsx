@@ -44,19 +44,17 @@ export function ConductoresPage() {
 
   return (
     <>
-      <div className="encabezado" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-          <h1 style={{ margin: 0 }}>Conductores</h1>
-          <div style={{ position: 'relative' }}>
-            <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#666', display: 'flex' }}>
-              <Search size={18} aria-hidden="true" />
-            </span>
+      <div className="encabezado">
+        <div className="titulo-con-buscador">
+          <h1>Conductores</h1>
+          <div className="buscador">
+            <Search size={18} aria-hidden="true" />
             <input
-              type="text"
+              type="search"
               placeholder="Buscar por nombre o DNI..."
+              aria-label="Buscar por nombre o DNI"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
-              style={{ padding: '0.5rem 0.5rem 0.5rem 2rem', borderRadius: '4px', border: '1px solid #ccc', minWidth: '250px' }}
             />
           </div>
         </div>
@@ -67,11 +65,8 @@ export function ConductoresPage() {
 
       <Alerta>{errorAccion}</Alerta>
       
-      {mensajeExito && (
-        <div style={{ backgroundColor: '#10B981', color: 'white', padding: '0.75rem', borderRadius: '4px', marginBottom: '1rem', fontWeight: 'bold' }}>
-          {mensajeExito}
-        </div>
-      )}
+      {/* Verde con texto oscuro: el blanco sobre #10B981 no llega al contraste minimo */}
+      <Alerta tipo="exito">{mensajeExito}</Alerta>
 
       <div className="card">
         {cargando && <Cargando />}
@@ -87,7 +82,7 @@ export function ConductoresPage() {
 
         {conductoresFiltrados?.length > 0 && (
           <div className="tabla-contenedor">
-            <table>
+            <table className="tabla-responsive">
               <thead>
                 <tr>
                   <th>Nombre</th>
@@ -102,22 +97,24 @@ export function ConductoresPage() {
               <tbody>
                 {conductoresFiltrados.map((c) => (
                   <tr key={c.id}>
-                    <td>
+                    <td data-label="Nombre">
                       <strong>{nombreConductor(c)}</strong>
                     </td>
-                    <td>{c.Usuario?.Persona?.dni}</td>
-                    <td>{c.Usuario?.email}</td>
-                    <td>{c.Usuario?.Persona?.telefono}</td>
-                    <td>
-                      {c.nro_licencia}
-                      <div className="chico texto-suave">
-                        vence {formatearFecha(c.vencimiento_licencia)} <EstadoLicencia fecha={c.vencimiento_licencia} />
+                    <td data-label="DNI">{c.Usuario?.Persona?.dni}</td>
+                    <td data-label="Email">{c.Usuario?.email}</td>
+                    <td data-label="Teléfono">{c.Usuario?.Persona?.telefono}</td>
+                    <td data-label="Licencia">
+                      <div>
+                        {c.nro_licencia}
+                        <div className="chico texto-suave">
+                          vence {formatearFecha(c.vencimiento_licencia)} <EstadoLicencia fecha={c.vencimiento_licencia} />
+                        </div>
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Disponibilidad">
                       <Badge estado={c.disponibilidad} />
                     </td>
-                    <td>
+                    <td data-label="">
                       <div className="acciones">
                         <Link to={`/conductores/${c.id}/editar`} className="btn btn-secundario btn-chico">
                           Editar

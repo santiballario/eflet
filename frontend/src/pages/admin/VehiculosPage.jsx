@@ -42,19 +42,17 @@ export function VehiculosPage() {
 
   return (
     <>
-      <div className="encabezado" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-          <h1 style={{ margin: 0 }}>Gestión de Flota</h1>
-          <div style={{ position: 'relative' }}>
-            <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#666', display: 'flex' }}>
-              <Search size={18} aria-hidden="true" />
-            </span>
+      <div className="encabezado">
+        <div className="titulo-con-buscador">
+          <h1>Gestión de Flota</h1>
+          <div className="buscador">
+            <Search size={18} aria-hidden="true" />
             <input
-              type="text"
+              type="search"
               placeholder="Buscar por patente..."
+              aria-label="Buscar por patente"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
-              style={{ padding: '0.5rem 0.5rem 0.5rem 2rem', borderRadius: '4px', border: '1px solid #ccc', minWidth: '250px' }}
             />
           </div>
         </div>
@@ -65,11 +63,8 @@ export function VehiculosPage() {
 
       <Alerta>{errorAccion}</Alerta>
 
-      {mensajeExito && (
-        <div style={{ backgroundColor: '#10B981', color: 'white', padding: '0.75rem', borderRadius: '4px', marginBottom: '1rem', fontWeight: 'bold' }}>
-          {mensajeExito}
-        </div>
-      )}
+      {/* Verde con texto oscuro: el blanco sobre #10B981 no llega al contraste minimo */}
+      <Alerta tipo="exito">{mensajeExito}</Alerta>
 
       <div className="card">
         {cargando && <Cargando />}
@@ -85,7 +80,7 @@ export function VehiculosPage() {
 
         {vehiculosFiltrados?.length > 0 && (
           <div className="tabla-contenedor">
-            <table>
+            <table className="tabla-responsive">
               <thead>
                 <tr>
                   <th>Patente</th>
@@ -99,20 +94,22 @@ export function VehiculosPage() {
               <tbody>
                 {vehiculosFiltrados.map((v) => (
                   <tr key={v.id}>
-                    <td>
+                    <td data-label="Patente">
                       <strong>{v.patente}</strong>
                     </td>
-                    <td>
+                    <td data-label="Marca / Modelo">
                       {v.marca} {v.modelo}
                     </td>
-                    <td>{Number(v.cantidad_maxima)} kg</td>
-                    <td>
-                      {formatearFecha(v.vencimiento_vtv)} <EstadoVtv fecha={v.vencimiento_vtv} />
+                    <td data-label="Capacidad">{Number(v.cantidad_maxima)} kg</td>
+                    <td data-label="VTV">
+                      <span>
+                        {formatearFecha(v.vencimiento_vtv)} <EstadoVtv fecha={v.vencimiento_vtv} />
+                      </span>
                     </td>
-                    <td>
+                    <td data-label="Estado">
                       <Badge estado={v.estado} />
                     </td>
-                    <td>
+                    <td data-label="">
                       <div className="acciones">
                         <Link to={`/vehiculos/${v.id}/editar`} className="btn btn-secundario btn-chico">
                           Editar
