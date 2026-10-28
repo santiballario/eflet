@@ -110,6 +110,7 @@ export function ViajeNuevoPage() {
               label="Bultos"
               type="number"
               min="1"
+              max="1000"
               value={p.cantidad_bultos}
               onChange={(e) => cambiarParada(i, 'cantidad_bultos', e.target.value)}
               required
@@ -127,7 +128,8 @@ export function ViajeNuevoPage() {
           </div>
         ))}
         <div>
-          <button type="button" className="btn btn-secundario" onClick={agregarParada}>
+          {/* El backend acepta hasta 50 paradas por viaje */}
+          <button type="button" className="btn btn-secundario" onClick={agregarParada} disabled={paradas.length >= 50}>
             + Añadir Parada
           </button>
         </div>

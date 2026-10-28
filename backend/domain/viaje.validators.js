@@ -2,7 +2,7 @@
 // Aca solo se valida FORMA (tipos, obligatorios). Las reglas de NEGOCIO
 // (VTV vencida, conductor ocupado, etc.) viven en services/viaje.service.js.
 const { body, param, query } = require('express-validator');
-const { ESTADO_ENTREGA, ESTADO_VIAJE } = require('./estados');
+const { ESTADO_ENTREGA, ESTADO_VIAJE, LIMITES } = require('./estados');
 
 const idValidator = [param('id').isInt({ min: 1 }).withMessage('El id debe ser un numero.')];
 
@@ -10,6 +10,8 @@ const destinoIdValidator = [
   ...idValidator,
   param('destinoId').isInt({ min: 1 }).withMessage('El id del destino debe ser un numero.'),
 ];
+
+const { BULTOS_POR_PARADA: MAX_BULTOS_POR_PARADA, PARADAS_POR_VIAJE: MAX_PARADAS_POR_VIAJE, KM: MAX_KM } = LIMITES;
 
 // Campos de un destino, reutilizados al crear el viaje (array) y al
 // agregar un destino suelto.
@@ -24,7 +26,8 @@ function reglasDestino(prefijo, opcional = false) {
       .notEmpty().withMessage('La direccion de la farmacia es obligatoria.')
       .isLength({ max: 200 }).withMessage('La direccion no puede superar los 200 caracteres.'),
     campo('cantidad_bultos')
-      .isInt({ min: 1 }).withMessage('La cantidad de bultos debe ser un entero mayor a 0.'),
+      .isInt({ min: 1, max: MAX_BULTOS_POR_PARADA })
+      .withMessage(`La cantidad de bultos debe ser un entero entre 1 y ${MAX_BULTOS_POR_PARADA}.`),
     body(`${prefijo}orden`)
       .optional()
       .isInt({ min: 1 }).withMessage('El orden debe ser un entero mayor a 0.'),
@@ -43,7 +46,8 @@ const crearViajeValidator = [
   body('vehiculo_id').isInt({ min: 1 }).withMessage('El vehiculo es obligatorio.'),
   body('conductor_id').isInt({ min: 1 }).withMessage('El conductor es obligatorio.'),
   body('destinos')
-    .isArray({ min: 1 }).withMessage('El viaje debe tener al menos un destino.'),
+    .isArray({ min: 1, max: MAX_PARADAS_POR_VIAJE })
+    .withMessage(`El viaje debe tener entre 1 y ${MAX_PARADAS_POR_VIAJE} destinos.`),
   ...reglasDestino('destinos.*.'),
 ];
 
@@ -60,12 +64,12 @@ const actualizarDestinoValidator = [...destinoIdValidator, ...reglasDestino('', 
 // Acciones del conductor
 const salidaValidator = [
   ...idValidator,
-  body('km_salida').isInt({ min: 0 }).withMessage('El kilometraje de salida debe ser un entero positivo.'),
+  body('km_salida').isInt({ min: 0, max: MAX_KM }).withMessage(`El kilometraje de salida debe ser un entero entre 0 y ${MAX_KM}.`),
 ];
 
 const regresoValidator = [
   ...idValidator,
-  body('km_regreso').isInt({ min: 0 }).withMessage('El kilometraje de regreso debe ser un entero positivo.'),
+  body('km_regreso').isInt({ min: 0, max: MAX_KM }).withMessage(`El kilometraje de regreso debe ser un entero entre 0 y ${MAX_KM}.`),
 ];
 
 const entregaValidator = [
@@ -74,6 +78,10 @@ const entregaValidator = [
     .isIn([ESTADO_ENTREGA.ENTREGADO, ESTADO_ENTREGA.NO_ENTREGADO])
     .withMessage(`El estado de entrega debe ser "${ESTADO_ENTREGA.ENTREGADO}" o "${ESTADO_ENTREGA.NO_ENTREGADO}".`),
   body('motivo_id').optional({ values: 'null' }).isInt({ min: 1 }).withMessage('motivo_id debe ser un numero.'),
+  body('detalle_motivo')
+    .optional({ values: 'null' })
+    .trim()
+    .isLength({ max: 200 }).withMessage('La descripción del motivo no puede superar los 200 caracteres.'),
 ];
 
 module.exports = {

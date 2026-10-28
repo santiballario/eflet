@@ -8,6 +8,7 @@ module.exports = (sequelize) => {
       id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       viaje_id: { type: DataTypes.INTEGER, allowNull: false },
       motivo_id: { type: DataTypes.INTEGER, allowNull: true },
+      detalle_motivo: { type: DataTypes.STRING(200), allowNull: true },
       direccion_farmacia: { type: DataTypes.STRING(200), allowNull: false },
       cantidad_bultos: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 },
       orden: { type: DataTypes.INTEGER, allowNull: false },

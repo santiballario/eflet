@@ -16,6 +16,9 @@ const ESTADO_ENTREGA = {
   NO_ENTREGADO: 'No entregado',
 };
 
+// Motivo de no entrega que exige una descripcion escrita por el conductor
+const MOTIVO_OTRO = 'Otro';
+
 const DISPONIBILIDAD = {
   DISPONIBLE: 'Disponible',
   EN_VIAJE: 'En viaje',
@@ -28,4 +31,12 @@ const ESTADO_VEHICULO = {
   BAJA: 'Baja',
 };
 
-module.exports = { ESTADO_VIAJE, ESTADO_ENTREGA, DISPONIBILIDAD, ESTADO_VEHICULO };
+// Topes para que un numero absurdo (por error de tipeo) no llegue a la base:
+// las columnas INT de MySQL no admiten valores enormes y respondian con un 500.
+const LIMITES = {
+  BULTOS_POR_PARADA: 1000,
+  PARADAS_POR_VIAJE: 50,
+  KM: 2000000,
+};
+
+module.exports = { ESTADO_VIAJE, ESTADO_ENTREGA, MOTIVO_OTRO, DISPONIBILIDAD, ESTADO_VEHICULO, LIMITES };

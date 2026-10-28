@@ -105,7 +105,7 @@ Ciclo de vida: **En Depósito** → **En Viaje** → **Entregado** → **Finaliz
 | PUT | `/viajes/:id/destinos/:destinoId` | Admin | Modificar destino (solo En Depósito) |
 | DELETE | `/viajes/:id/destinos/:destinoId` | Admin | Quitar destino (solo En Depósito, no el último) |
 | POST | `/viajes/:id/salida` | Conductor | `{ km_salida }` → En Viaje |
-| PATCH | `/viajes/:id/destinos/:destinoId/entrega` | Conductor | `{ estado_entrega, motivo_id? }` |
+| PATCH | `/viajes/:id/destinos/:destinoId/entrega` | Conductor | `{ estado_entrega, motivo_id?, detalle_motivo? }` (`detalle_motivo` es obligatorio si el motivo es "Otro") |
 | POST | `/viajes/:id/regreso` | Conductor | `{ km_regreso }` → Finalizado |
 
 ### Catálogos
@@ -120,7 +120,8 @@ Ciclo de vida: **En Depósito** → **En Viaje** → **Entregado** → **Finaliz
 - No se asigna un conductor con **licencia vencida**, que no esté **Disponible** o que ya tenga otro viaje sin finalizar.
 - Al salir se vuelven a chequear la VTV y la licencia, porque pueden haber vencido desde que se armó el viaje.
 - **Auditoría de kilometraje:** el km de salida no puede ser menor al último km de regreso del vehículo, y el de regreso no puede ser menor al de salida.
-- "No entregado" exige un motivo. Cuando no queda ningún destino Pendiente, el viaje pasa a **Entregado** solo.
+- "No entregado" exige un motivo. Si el motivo es **"Otro"**, el conductor tiene que escribir qué pasó. Cuando no queda ningún destino Pendiente, el viaje pasa a **Entregado** solo.
+- **Límites** para que un dato absurdo no llegue a la base: capacidad de hasta 9.999,99 kg, hasta 1.000 bultos por parada, hasta 50 paradas por viaje y hasta 2.000.000 km.
 - El conductor queda "En viaje" al salir y vuelve a "Disponible" al regresar.
 - `km_recorridos` es un atributo calculado: no se guarda en la base.
 - Las bajas son **lógicas** (`fecha_eliminacion`): nada se borra físicamente.
@@ -139,4 +140,4 @@ Ciclo de vida: **En Depósito** → **En Viaje** → **Entregado** → **Finaliz
 ## Probar la API
 
 - **A mano:** `api.http`, con la extensión REST Client de VS Code. Trae todos los pedidos en orden, incluidos casos de error.
-- **Automático:** `npm test` corre 64 tests (auth, perfil, cambio de contraseña, vehículos, conductores y el ciclo completo de un viaje) contra la base de tests.
+- **Automático:** `npm test` corre 69 tests (auth, perfil, cambio de contraseña, vehículos, conductores y el ciclo completo de un viaje) contra la base de tests.

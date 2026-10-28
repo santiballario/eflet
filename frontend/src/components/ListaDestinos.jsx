@@ -18,7 +18,12 @@ export function ListaDestinos({ destinos, acciones }) {
             </div>
             <div style={{ marginTop: '0.3rem' }}>
               <Badge estado={d.estado_entrega} />
-              {d.MotivoNoEntrega && <span className="chico texto-suave"> — {d.MotivoNoEntrega.descripcion}</span>}
+              {d.MotivoNoEntrega && (
+                <span className="chico texto-suave">
+                  {' '}— {d.MotivoNoEntrega.descripcion}
+                  {d.detalle_motivo && `: ${d.detalle_motivo}`}
+                </span>
+              )}
             </div>
             {acciones && <div style={{ marginTop: '0.6rem' }}>{acciones(d)}</div>}
           </div>

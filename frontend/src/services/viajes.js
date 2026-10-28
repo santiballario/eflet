@@ -48,10 +48,11 @@ export async function registrarSalida(id, km_salida) {
   return viaje;
 }
 
-export async function registrarEntrega(viajeId, destinoId, estado_entrega, motivo_id) {
+// detalle_motivo: solo cuando el motivo es "Otro" (el backend lo exige en ese caso)
+export async function registrarEntrega(viajeId, destinoId, estado_entrega, motivo_id, detalle_motivo) {
   const { viaje } = await apiRequest(`/api/viajes/${viajeId}/destinos/${destinoId}/entrega`, {
     method: 'PATCH',
-    body: { estado_entrega, motivo_id },
+    body: { estado_entrega, motivo_id, detalle_motivo },
   });
   return viaje;
 }
