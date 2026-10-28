@@ -19,21 +19,28 @@ const CAMPOS_DESTINO = ['direccion_farmacia', 'cantidad_bultos', 'orden'];
 
 // Datos relacionados que se devuelven siempre junto al viaje, para que el
 // frontend no tenga que hacer 5 pedidos para armar una hoja de ruta.
+//
+// paranoid: false = traer tambien los registros dados de baja. Sin esto, si se
+// da de baja un conductor o un vehiculo, sus viajes viejos quedaban sin
+// conductor o sin vehiculo, y el historial tiene que mostrar quien lo hizo.
+// fecha_eliminacion le permite al frontend avisar que ya no esta activo.
 const INCLUDE_VIAJE = [
   { model: db.EstadoViaje, attributes: ['id', 'descripcion'] },
-  { model: db.Vehiculo, attributes: ['id', 'patente', 'marca', 'modelo'] },
+  { model: db.Vehiculo, attributes: ['id', 'patente', 'marca', 'modelo', 'fecha_eliminacion'], paranoid: false },
   {
     model: db.Conductor,
-    attributes: ['id', 'nro_licencia'],
+    attributes: ['id', 'nro_licencia', 'fecha_eliminacion'],
+    paranoid: false,
     include: [
       {
         model: db.Usuario,
         attributes: ['id', 'email'],
-        include: [{ model: db.Persona, attributes: ['nombre', 'apellido'] }],
+        paranoid: false,
+        include: [{ model: db.Persona, attributes: ['nombre', 'apellido'], paranoid: false }],
       },
     ],
   },
-  { model: db.Usuario, as: 'creador', attributes: ['id', 'email'] },
+  { model: db.Usuario, as: 'creador', attributes: ['id', 'email'], paranoid: false },
   {
     model: db.Destino,
     attributes: ['id', 'orden', 'direccion_farmacia', 'cantidad_bultos', 'estado_entrega', 'motivo_id', 'detalle_motivo'],
