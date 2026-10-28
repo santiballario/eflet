@@ -152,6 +152,9 @@ describe('ciclo de vida completo de un viaje', () => {
     const destino = res.body.viaje.Destinos.find((d) => d.id === viaje.Destinos[0].id);
     assert.equal(destino.MotivoNoEntrega.descripcion, motivos[0].descripcion);
     assert.equal(res.body.viaje.EstadoViaje.descripcion, 'En Viaje');
+    // Se guarda la hora en que se marco; la parada que sigue pendiente no tiene
+    assert.ok(Math.abs(new Date(destino.fecha_entrega) - Date.now()) < 60000, 'fecha_entrega es ahora');
+    assert.equal(res.body.viaje.Destinos.find((d) => d.id === viaje.Destinos[1].id).fecha_entrega, null);
   });
 
   test('un destino ya resuelto no se vuelve a marcar -> 409', async () => {
@@ -181,6 +184,13 @@ describe('ciclo de vida completo de un viaje', () => {
 
     const cond = await api().get(`/api/conductores/${c1.id}`).set(conToken(admin));
     assert.equal(cond.body.conductor.disponibilidad, 'Disponible');
+  });
+
+  test('Gestion de Flota muestra el km del ultimo regreso de cada vehiculo', async () => {
+    const res = await api().get('/api/vehiculos').set(conToken(admin));
+    assert.equal(res.status, 200);
+    assert.equal(res.body.vehiculos.find((v) => v.id === v1.id).ultimo_km, 1150);
+    assert.equal(res.body.vehiculos.find((v) => v.id === v2.id).ultimo_km, null);
   });
 
   test('un viaje finalizado no se elimina -> 409', async () => {

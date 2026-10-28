@@ -17,13 +17,8 @@ const { ESTADO_VIAJE, ESTADO_ENTREGA, MOTIVO_OTRO, DISPONIBILIDAD, ESTADO_VEHICU
 
 const CAMPOS_DESTINO = ['direccion_farmacia', 'cantidad_bultos', 'orden'];
 
-// Datos relacionados que se devuelven siempre junto al viaje, para que el
-// frontend no tenga que hacer 5 pedidos para armar una hoja de ruta.
-//
-// paranoid: false = traer tambien los registros dados de baja. Sin esto, si se
-// da de baja un conductor o un vehiculo, sus viajes viejos quedaban sin
-// conductor o sin vehiculo, y el historial tiene que mostrar quien lo hizo.
-// fecha_eliminacion le permite al frontend avisar que ya no esta activo.
+// Datos relacionados que se devuelven siempre junto al viaje (un solo pedido arma la hoja de ruta).
+// paranoid: false trae tambien a los dados de baja, para que el historial muestre quien hizo cada viaje.
 const INCLUDE_VIAJE = [
   { model: db.EstadoViaje, attributes: ['id', 'descripcion'] },
   { model: db.Vehiculo, attributes: ['id', 'patente', 'marca', 'modelo', 'fecha_eliminacion'], paranoid: false },
@@ -43,7 +38,7 @@ const INCLUDE_VIAJE = [
   { model: db.Usuario, as: 'creador', attributes: ['id', 'email'], paranoid: false },
   {
     model: db.Destino,
-    attributes: ['id', 'orden', 'direccion_farmacia', 'cantidad_bultos', 'estado_entrega', 'motivo_id', 'detalle_motivo'],
+    attributes: ['id', 'orden', 'direccion_farmacia', 'cantidad_bultos', 'estado_entrega', 'fecha_entrega', 'motivo_id', 'detalle_motivo'],
     include: [{ model: db.MotivoNoEntrega, attributes: ['id', 'descripcion'] }],
   },
 ];
@@ -54,12 +49,9 @@ const ORDEN_VIAJE = [
   [db.Destino, 'orden', 'ASC'],
 ];
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+// ---- Helpers ----
 
-// Fecha de hoy como 'YYYY-MM-DD', para comparar contra columnas DATEONLY
-// (vencimiento de VTV y de licencia).
+// Hoy como 'YYYY-MM-DD', para comparar con los vencimientos de VTV y licencia.
 function hoy() {
   const d = new Date();
   const mes = String(d.getMonth() + 1).padStart(2, '0');
@@ -137,8 +129,7 @@ function normalizarDestinos(destinos) {
   return normalizados;
 }
 
-// El usuario del token es un Usuario; para saber "cuales son mis viajes"
-// hace falta el id de su fila en Conductor.
+// El token trae el id de Usuario; los viajes se buscan por el id de Conductor.
 async function conductorDelUsuario(usuarioId) {
   const conductor = await db.Conductor.findOne({ where: { usuario_id: usuarioId } });
   if (!conductor) throw new AppError('El usuario no tiene un perfil de conductor.', 403);
@@ -175,9 +166,7 @@ async function buscarDestino(viajeId, destinoId, transaction) {
   return destino;
 }
 
-// ---------------------------------------------------------------------------
-// Consultas
-// ---------------------------------------------------------------------------
+// ---- Consultas ----
 
 async function listar(filtros, usuario) {
   const where = {};
@@ -204,9 +193,7 @@ async function obtenerPorId(id, usuario) {
   return viaje;
 }
 
-// ---------------------------------------------------------------------------
-// Administrador: alta, modificacion y baja de hojas de ruta
-// ---------------------------------------------------------------------------
+// ---- Administrador: alta, modificacion y baja de hojas de ruta ----
 
 async function crear(datos, usuarioId) {
   await validarVehiculo(datos.vehiculo_id);
@@ -262,9 +249,7 @@ async function eliminar(id, usuarioId) {
   await viaje.destroy();
 }
 
-// ---------------------------------------------------------------------------
-// Administrador: destinos de un viaje (solo mientras esta "En Deposito")
-// ---------------------------------------------------------------------------
+// ---- Administrador: destinos de un viaje (solo mientras esta "En Deposito") ----
 
 async function agregarDestino(viajeId, datos, usuarioId) {
   const viaje = await buscarViaje(viajeId);
@@ -319,9 +304,7 @@ async function eliminarDestino(viajeId, destinoId, usuarioId) {
   await viaje.update({ modificado_por: usuarioId });
 }
 
-// ---------------------------------------------------------------------------
-// Conductor: registro del recorrido
-// ---------------------------------------------------------------------------
+// ---- Conductor: registro del recorrido ----
 
 async function registrarSalida(id, kmSalida, usuario) {
   const viaje = await buscarViaje(id);
@@ -399,7 +382,12 @@ async function registrarEntrega(viajeId, destinoId, datos, usuario) {
 
   await db.sequelize.transaction(async (t) => {
     await destino.update(
-      { estado_entrega: datos.estado_entrega, motivo_id: motivoId, detalle_motivo: detalleMotivo },
+      {
+        estado_entrega: datos.estado_entrega,
+        fecha_entrega: new Date(), // la hora la pone el servidor, no el celular del conductor
+        motivo_id: motivoId,
+        detalle_motivo: detalleMotivo,
+      },
       { transaction: t }
     );
 

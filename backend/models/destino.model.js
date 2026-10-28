@@ -17,6 +17,7 @@ module.exports = (sequelize) => {
         allowNull: false,
         defaultValue: 'Pendiente',
       },
+      fecha_entrega: { type: DataTypes.DATE, allowNull: true },
     },
     {
       tableName: 'destinos',
