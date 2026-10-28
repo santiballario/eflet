@@ -9,11 +9,15 @@ import { Alerta } from '@/components/ui/Alerta';
 import { Campo } from '@/components/ui/Campo';
 import { Cargando } from '@/components/ui/Cargando';
 import { diasHasta, nombreConductor } from '@/utils/formato';
+import { useTitulo } from '@/hooks/use-titulo';
+import { useAvisos } from '@/components/ui/avisos-context';
 
 const PARADA_VACIA = { direccion_farmacia: '', cantidad_bultos: 1 };
 
 // Pantalla "Crear Hoja de Ruta" del documento de diseno.
 export function ViajeNuevoPage() {
+  useTitulo('Nuevo viaje');
+  const avisar = useAvisos();
   const navigate = useNavigate();
   const vehiculos = useFetch(listarVehiculos);
   const conductores = useFetch(listarConductores);
@@ -54,6 +58,7 @@ export function ViajeNuevoPage() {
         // el orden de las paradas es el orden en que se cargaron
         destinos: paradas.map((p, i) => ({ ...p, orden: i + 1, cantidad_bultos: Number(p.cantidad_bultos) })),
       });
+      avisar(`Hoja de ruta #${viaje.id} creada.`);
       navigate(`/viajes/${viaje.id}`);
     } catch (err) {
       // ej: 409 "El vehiculo tiene la VTV vencida." o "ya esta asignado a otro viaje"

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { LogOut, Pencil } from 'lucide-react';
 import { actualizarPerfil, cambiarPassword, getMe } from '@/services/auth';
 import { useAuth } from '@/auth/use-auth';
+import { useConfirmar } from '@/components/ui/confirmar-context';
 import { ROL } from '@/auth/roles';
 import { useFetch } from '@/hooks/use-fetch';
 import { Alerta } from '@/components/ui/Alerta';
@@ -9,12 +10,15 @@ import { Badge } from '@/components/ui/Badge';
 import { Campo } from '@/components/ui/Campo';
 import { Cargando } from '@/components/ui/Cargando';
 import { diasHasta, formatearFecha, nombreCompleto } from '@/utils/formato';
+import { useTitulo } from '@/hooks/use-titulo';
 
 // Pantalla "Mi cuenta" (admin y conductor):
 //   - sus datos (solo lectura, salvo el telefono)
 //   - cambio de contraseña
 export function MiCuentaPage() {
+  useTitulo('Mi cuenta');
   const { usuario, logout } = useAuth();
+  const confirmar = useConfirmar();
   const { data: perfil, error, cargando, setData: setPerfil } = useFetch(getMe);
 
   return (
@@ -24,7 +28,12 @@ export function MiCuentaPage() {
         {/* Solo el admin en el celular: ahi no tiene el menu lateral para salir.
             (En la compu esta en el menu, y el conductor lo tiene siempre arriba.) */}
         {usuario.rol === ROL.ADMIN && (
-          <button className="btn btn-secundario solo-celular" onClick={logout}>
+          <button
+            className="btn btn-secundario solo-celular"
+            onClick={async () => {
+              if (await confirmar({ titulo: '¿Cerrar sesión?', mensaje: 'Vas a tener que volver a ingresar con tu email y contraseña.', textoConfirmar: 'Cerrar sesión' })) logout();
+            }}
+          >
             <LogOut size={18} aria-hidden="true" />
             Cerrar sesión
           </button>

@@ -32,6 +32,12 @@ export function diaLocal(fechaIso) {
   return `${d.getFullYear()}-${mes}-${dia}`;
 }
 
+// "Miércoles, 28 de octubre": para el encabezado de los inicios.
+export function fechaDeHoyLarga() {
+  const texto = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
+
 export function hoyLocal() {
   return diaLocal(new Date().toISOString());
 }

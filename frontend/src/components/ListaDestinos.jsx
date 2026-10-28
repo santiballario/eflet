@@ -1,9 +1,14 @@
+import { MapPin } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
+
+// Link de Google Maps que busca la direccion (no necesita clave ni API).
+const linkMapa = (direccion) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccion)}`;
 
 // Paradas de la hoja de ruta en orden. `acciones` (opcional) es una funcion
 // que recibe el destino y devuelve los botones a mostrar: asi el mismo
 // componente sirve para el administrador y para el conductor.
-export function ListaDestinos({ destinos, acciones }) {
+// `conMapa`: muestra "Ver en el mapa" en las paradas pendientes (para el conductor).
+export function ListaDestinos({ destinos, acciones, conMapa = false }) {
   return (
     <div>
       {destinos.map((d) => (
@@ -15,6 +20,15 @@ export function ListaDestinos({ destinos, acciones }) {
             </div>
             <div className="chico texto-suave">
               {d.cantidad_bultos} bulto{d.cantidad_bultos === 1 ? '' : 's'}
+              {conMapa && d.estado_entrega === 'Pendiente' && (
+                <>
+                  {' · '}
+                  <a href={linkMapa(d.direccion_farmacia)} target="_blank" rel="noopener noreferrer" className="link-mapa">
+                    <MapPin size={14} aria-hidden="true" />
+                    Ver en el mapa
+                  </a>
+                </>
+              )}
             </div>
             <div style={{ marginTop: '0.3rem' }}>
               <Badge estado={d.estado_entrega} />

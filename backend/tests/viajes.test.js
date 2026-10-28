@@ -271,6 +271,29 @@ describe('limites de los datos (evitan errores 500 de la base)', () => {
   });
 });
 
+describe('historial con un conductor y un vehiculo dados de baja', () => {
+  test('el viaje finalizado sigue mostrando quien lo hizo y con que vehiculo', async () => {
+    const vehiculo = await crearVehiculo(admin);
+    const { conductor, email, password } = await crearConductor(admin, { nombre: 'Rosa', apellido: 'Paez' });
+    const token = await login(email, password);
+
+    const viaje = (await crearViaje({ vehiculo_id: vehiculo.id, conductor_id: conductor.id, destinos: [destinos[0]] })).body.viaje;
+    await api().post(`/api/viajes/${viaje.id}/salida`).set(conToken(token)).send({ km_salida: 100 });
+    await api().patch(`/api/viajes/${viaje.id}/destinos/${viaje.Destinos[0].id}/entrega`).set(conToken(token)).send({ estado_entrega: 'Entregado' });
+    await api().post(`/api/viajes/${viaje.id}/regreso`).set(conToken(token)).send({ km_regreso: 150 });
+
+    assert.equal((await api().delete(`/api/conductores/${conductor.id}`).set(conToken(admin))).status, 204);
+    assert.equal((await api().delete(`/api/vehiculos/${vehiculo.id}`).set(conToken(admin))).status, 204);
+
+    const res = await api().get(`/api/viajes/${viaje.id}`).set(conToken(admin));
+    assert.equal(res.status, 200);
+    assert.equal(res.body.viaje.Conductor.Usuario.Persona.nombre, 'Rosa');
+    assert.ok(res.body.viaje.Conductor.fecha_eliminacion);
+    assert.equal(res.body.viaje.Vehiculo.patente, vehiculo.patente);
+    assert.ok(res.body.viaje.Vehiculo.fecha_eliminacion);
+  });
+});
+
 test('catalogo de estados de viaje', async () => {
   const res = await api().get('/api/estados-viaje').set(conToken(admin));
   assert.equal(res.status, 200);

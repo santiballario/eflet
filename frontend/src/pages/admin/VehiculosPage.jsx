@@ -5,8 +5,12 @@ import { eliminarVehiculo, listarVehiculos } from '@/services/vehiculos';
 import { Alerta } from '@/components/ui/Alerta';
 import { Badge } from '@/components/ui/Badge';
 import { Cargando } from '@/components/ui/Cargando';
+import { Vacio } from '@/components/ui/Vacio';
+import { useConfirmar } from '@/components/ui/confirmar-context';
 import { diasHasta, formatearFecha } from '@/utils/formato';
-import { Search } from 'lucide-react';
+import { Search, SearchX, Truck } from 'lucide-react';
+import { useTitulo } from '@/hooks/use-titulo';
+import { useAvisos } from '@/components/ui/avisos-context';
 
 
 function EstadoVtv({ fecha }) {
@@ -17,20 +21,26 @@ function EstadoVtv({ fecha }) {
 }
 
 export function VehiculosPage() {
+  useTitulo('Gestión de Flota');
   const { data: vehiculos, error, cargando, recargar } = useFetch(listarVehiculos);
   const [errorAccion, setErrorAccion] = useState('');
-  const [mensajeExito, setMensajeExito] = useState('');
   const [busqueda, setBusqueda] = useState('');
+  const confirmar = useConfirmar();
+  const avisar = useAvisos();
 
   async function handleEliminar(vehiculo) {
-    if (!window.confirm(`¿Dar de baja el vehículo ${vehiculo.patente}?`)) return;
+    const seguro = await confirmar({
+      titulo: `¿Dar de baja el vehículo ${vehiculo.patente}?`,
+      mensaje: 'Deja de aparecer para armar viajes. Los viajes que ya hizo se conservan.',
+      textoConfirmar: 'Dar de baja',
+      peligro: true,
+    });
+    if (!seguro) return;
     setErrorAccion('');
-    setMensajeExito('');
     try {
       await eliminarVehiculo(vehiculo.id);
-      setMensajeExito('Vehículo eliminado exitosamente.');
+      avisar('Vehículo dado de baja.');
       recargar();
-      setTimeout(() => setMensajeExito(''), 3000);
     } catch (err) {
       setErrorAccion(err.message);
     }
@@ -64,18 +74,17 @@ export function VehiculosPage() {
       <Alerta>{errorAccion}</Alerta>
 
       {/* Verde con texto oscuro: el blanco sobre #10B981 no llega al contraste minimo */}
-      <Alerta tipo="exito">{mensajeExito}</Alerta>
 
       <div className="card">
         {cargando && <Cargando />}
         {error && <Alerta>{error.message}</Alerta>}
         
         {!cargando && vehiculos?.length === 0 && (
-          <div className="vacio">Todavía no hay vehículos cargados.</div>
+          <Vacio icono={Truck}>Todavía no hay vehículos cargados.</Vacio>
         )}
 
         {vehiculos?.length > 0 && vehiculosFiltrados?.length === 0 && (
-          <div className="vacio">No se encontraron resultados para "{busqueda}".</div>
+          <Vacio icono={SearchX}>No se encontraron resultados para "{busqueda}".</Vacio>
         )}
 
         {vehiculosFiltrados?.length > 0 && (

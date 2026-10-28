@@ -5,8 +5,13 @@ import { eliminarConductor, listarConductores } from '@/services/conductores';
 import { Alerta } from '@/components/ui/Alerta';
 import { Badge } from '@/components/ui/Badge';
 import { Cargando } from '@/components/ui/Cargando';
+import { Vacio } from '@/components/ui/Vacio';
+import { useConfirmar } from '@/components/ui/confirmar-context';
 import { diasHasta, formatearFecha, nombreConductor } from '@/utils/formato';
-import { Search } from 'lucide-react';
+import { Search, SearchX, Users } from 'lucide-react';
+import { useTitulo } from '@/hooks/use-titulo';
+import { useAvisos } from '@/components/ui/avisos-context';
+import { Avatar } from '@/components/ui/Avatar';
 
 function EstadoLicencia({ fecha }) {
   const dias = diasHasta(fecha);
@@ -16,20 +21,26 @@ function EstadoLicencia({ fecha }) {
 }
 
 export function ConductoresPage() {
+  useTitulo('Conductores');
   const { data: conductores, error, cargando, recargar } = useFetch(listarConductores);
   const [errorAccion, setErrorAccion] = useState('');
-  const [mensajeExito, setMensajeExito] = useState('');
   const [busqueda, setBusqueda] = useState('');
+  const confirmar = useConfirmar();
+  const avisar = useAvisos();
 
   async function handleEliminar(conductor) {
-    if (!window.confirm(`¿Dar de baja a ${nombreConductor(conductor)}? Ya no va a poder ingresar al sistema.`)) return;
+    const seguro = await confirmar({
+      titulo: `¿Dar de baja a ${nombreConductor(conductor)}?`,
+      mensaje: 'Ya no va a poder ingresar al sistema. Los viajes que hizo se conservan.',
+      textoConfirmar: 'Dar de baja',
+      peligro: true,
+    });
+    if (!seguro) return;
     setErrorAccion('');
-    setMensajeExito('');
     try {
       await eliminarConductor(conductor.id);
-      setMensajeExito('Conductor eliminado exitosamente.');
+      avisar('Conductor dado de baja.');
       recargar();
-      setTimeout(() => setMensajeExito(''), 3000);
     } catch (err) {
       setErrorAccion(err.message);
     }
@@ -66,18 +77,17 @@ export function ConductoresPage() {
       <Alerta>{errorAccion}</Alerta>
       
       {/* Verde con texto oscuro: el blanco sobre #10B981 no llega al contraste minimo */}
-      <Alerta tipo="exito">{mensajeExito}</Alerta>
 
       <div className="card">
         {cargando && <Cargando />}
         {error && <Alerta>{error.message}</Alerta>}
         
         {!cargando && conductores?.length === 0 && (
-          <div className="vacio">Todavía no hay conductores cargados.</div>
+          <Vacio icono={Users}>Todavía no hay conductores cargados.</Vacio>
         )}
 
         {conductores?.length > 0 && conductoresFiltrados?.length === 0 && (
-          <div className="vacio">No se encontraron resultados para "{busqueda}".</div>
+          <Vacio icono={SearchX}>No se encontraron resultados para "{busqueda}".</Vacio>
         )}
 
         {conductoresFiltrados?.length > 0 && (
@@ -98,7 +108,10 @@ export function ConductoresPage() {
                 {conductoresFiltrados.map((c) => (
                   <tr key={c.id}>
                     <td data-label="Nombre">
-                      <strong>{nombreConductor(c)}</strong>
+                      <span className="persona">
+                        <Avatar nombre={c.Usuario?.Persona?.nombre} apellido={c.Usuario?.Persona?.apellido} />
+                        <strong>{nombreConductor(c)}</strong>
+                      </span>
                     </td>
                     <td data-label="DNI">{c.Usuario?.Persona?.dni}</td>
                     <td data-label="Email">{c.Usuario?.email}</td>

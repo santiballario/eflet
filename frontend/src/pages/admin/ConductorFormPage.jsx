@@ -5,6 +5,8 @@ import { Alerta } from '@/components/ui/Alerta';
 import { Campo } from '@/components/ui/Campo';
 import { Cargando } from '@/components/ui/Cargando';
 import { Eye, EyeOff } from 'lucide-react';
+import { useTitulo } from '@/hooks/use-titulo';
+import { useAvisos } from '@/components/ui/avisos-context';
 
 const VACIO = {
   email: '',
@@ -21,6 +23,8 @@ const VACIO = {
 export function ConductorFormPage() {
   const { id } = useParams();
   const esEdicion = Boolean(id);
+  const avisar = useAvisos();
+  useTitulo(esEdicion ? 'Editar conductor' : 'Nuevo conductor');
   const navigate = useNavigate();
 
   const [form, setForm] = useState(VACIO);
@@ -66,6 +70,7 @@ export function ConductorFormPage() {
         delete datosEnvio.disponibilidad;
         await crearConductor(datosEnvio);
       }
+      avisar(esEdicion ? 'Cambios guardados.' : `Conductor ${form.nombre} ${form.apellido} dado de alta.`);
       navigate('/conductores');
     } catch (err) {
       setError(err.message);
