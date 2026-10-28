@@ -21,8 +21,10 @@ services:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
       interval: 5s
       timeout: 5s
-      retries: 20
-      start_period: 30s
+      retries: 30
+      # La primera vez (base nueva) MySQL tarda en inicializarse: en una compu
+      # lenta llego a 3 minutos. Durante este tiempo los fallos no cuentan.
+      start_period: 240s
 
   backend:
     build: ./backend
