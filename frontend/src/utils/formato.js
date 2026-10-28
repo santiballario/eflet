@@ -13,6 +13,12 @@ export function formatearFechaHora(fechaIso) {
   return new Date(fechaIso).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' });
 }
 
+// Solo la hora ("14:35"), para la hora de entrega de cada parada.
+export function formatearHora(fechaIso) {
+  if (!fechaIso) return '';
+  return new Date(fechaIso).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+}
+
 // Dias que faltan hasta una fecha 'YYYY-MM-DD' (negativo = ya vencio).
 export function diasHasta(fechaIso) {
   const [anio, mes, dia] = fechaIso.slice(0, 10).split('-').map(Number);

@@ -1,7 +1,7 @@
 import { Navigate, useLocation } from 'react-router';
 import { useAuth } from './use-auth';
 import { inicioSegunRol } from './roles';
-import { Cargando } from '@/components/ui/Cargando';
+import { PantallaCarga } from '@/components/ui/PantallaCarga';
 
 // Envuelve las rutas privadas. `roles` (opcional) limita a ciertos roles.
 // OJO: esto es solo comodidad para el usuario. La seguridad real esta en el
@@ -13,7 +13,7 @@ export function ProtectedRoute({ children, roles }) {
 
   // Todavia no respondio /auth/me: si redirigieramos ahora, cada F5 mandaria
   // a /login un instante aunque la sesion sea valida.
-  if (status === 'loading') return <Cargando />;
+  if (status === 'loading') return <PantallaCarga />;
 
   if (status === 'anonymous') {
     // Guardamos de donde venia para volver ahi despues del login.

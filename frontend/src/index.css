@@ -1,12 +1,7 @@
 /* Paleta y tipografia del documento de Diseno de Interfaces (entrega 2).
- *
- * Contraste (devolucion de la entrega 2): todo texto cumple WCAG AA, es decir
- * al menos 4,5:1 contra su fondo. Medido con la formula de contraste WCAG,
- * la misma de https://accessibleweb.com/color-contrast-checker/
- *   - Los colores de estado del documento (#10B981, #EF4444) se mantienen para
- *     bordes y detalles. Para botones con texto blanco se usa un tono mas
- *     oscuro de la misma familia, porque el blanco sobre #10B981 da 2,5:1.
- */
+ * Contraste: todo texto cumple WCAG AA (al menos 4,5:1), medido con
+ * https://accessibleweb.com/color-contrast-checker/ (valores al lado de cada color).
+ * Sobre los verdes y rojos del documento el blanco no llega, por eso los botones usan un tono mas oscuro. */
 :root {
   --primario: #3776b6;          /* blanco sobre este azul: 4,7:1 */
   --primario-oscuro: #2b5d91;
@@ -23,8 +18,7 @@
   --error: #ef4444;
   --error-oscuro: #dc2626;      /* blanco sobre este rojo: 4,8:1 */
   --gradiente: linear-gradient(135deg, #3776b6 0%, #6d5bd0 100%);   /* solo en el login, como el mockup */
-  /* Encabezados: el mismo degradé del login pero mas suave (indigo apagado en vez de violeta).
-     Blanco encima: 4,7:1 en el azul y 5,1:1 en el indigo */
+  /* El degradé del login, mas suave. Blanco encima: 4,7:1 y 5,1:1 */
   --gradiente-sobrio: linear-gradient(120deg, #3776b6 0%, #5468c4 100%);
   --gradiente-inicio: linear-gradient(120deg, #3776b6 0%, #5468c4 55%, #6a5fcb 100%); /* el banner del inicio, un poco mas de violeta; blanco encima: 4,7 a 5,1:1 */
 
@@ -59,8 +53,7 @@ button, input, select, textarea { font: inherit; }
 
 /* ---------- Layout del Administrador ---------- */
 .layout { display: flex; min-height: 100vh; }
-/* Menu lateral azul marino: separa la navegacion del contenido, como en los
-   sistemas de gestion. Texto #c9d6e8 sobre #14284a: 10,6:1; blanco: 14,6:1 */
+/* Menu lateral azul marino. Texto #c9d6e8 sobre #14284a: 10,6:1 */
 .sidebar {
   width: 240px; flex-shrink: 0; background: #14284a; color: #c9d6e8;
   display: flex; flex-direction: column; padding: 1.25rem 0.75rem;
@@ -76,8 +69,7 @@ button, input, select, textarea { font: inherit; }
 /* Iconos (lucide-react): no se achican cuando el texto de al lado es largo */
 .nav-link svg, .btn svg { flex-shrink: 0; }
 .link-volver { display: inline-flex; align-items: center; gap: 0.3rem; }
-/* Opcion activa: fondo celeste suave y una linea azul a la izquierda.
-   Texto azul oscuro sobre el celeste: 6,2:1 */
+/* Opcion activa (barra inferior del celular). Texto sobre el celeste: 6,2:1 */
 .nav-link.active { background: #e8f0f9; color: var(--primario-oscuro); font-weight: 500; box-shadow: inset 3px 0 0 var(--primario); }
 .sidebar .usuario { font-size: 0.85rem; color: #c9d6e8; padding: 0.75rem; border-top: 1px solid rgba(255, 255, 255, 0.12); }
 .sidebar .nav-link { color: #c9d6e8; }
@@ -132,17 +124,13 @@ button, input, select, textarea { font: inherit; }
 /* ---------- Layout del Conductor (pensado para celular) ---------- */
 /* Barra superior blanca: el color queda para el cartel de bienvenida, como en el inicio del admin */
 .conductor-header { background: var(--blanco); color: var(--primario); border-bottom: 1px solid var(--borde); position: sticky; top: 0; z-index: 20; }
-/* Mismo ancho maximo que .conductor-main: el logo y los botones quedan
-   alineados con el contenido. flex-wrap: si en una pantalla angosta no entran
-   el logo y los dos botones, los botones bajan a otra linea en vez de
-   ensanchar la pagina (eso hacia que se pudiera deslizar de costado). */
+/* flex-wrap: en pantallas angostas los botones bajan de linea en vez de ensanchar la pagina */
 .conductor-header-contenido {
   max-width: 1600px; margin: 0 auto; padding: 0.75rem 2rem;
   display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;
 }
 .conductor-header .marca { font-weight: 700; letter-spacing: 1px; font-size: 1.2rem; color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
-/* En el celular ocupa todo el ancho; en la compu se abre hasta 1600px (casi toda la pantalla) y el
-   contenido se reparte en dos columnas (ver .conductor-columnas) */
+/* En la compu se abre hasta 1600px (casi toda la pantalla) */
 .conductor-main { max-width: 1600px; margin: 0 auto; padding: 1.5rem 2rem 2rem; }
 @media (max-width: 600px) {
   .conductor-header-contenido { padding: 0.65rem 1rem; }
@@ -158,7 +146,6 @@ button, input, select, textarea { font: inherit; }
   box-shadow: var(--sombra); padding: var(--e-6); margin-bottom: var(--e-6);
 }
 @media (max-width: 600px) { .card { padding: var(--e-4); margin-bottom: var(--e-4); } }
-/* Encabezado del Panel de Control: degradé azul con el titulo en blanco */
 .bienvenida {
   position: relative; overflow: hidden;
   background: var(--gradiente-inicio); color: var(--blanco); border-radius: var(--radio-grande);
@@ -258,9 +245,7 @@ button, input, select, textarea { font: inherit; }
 /* tabular-nums: todos los digitos del mismo ancho, los numeros no "bailan" */
 .stat .valor { font-size: 2.4rem; font-weight: 700; color: var(--texto); margin-top: var(--e-2); letter-spacing: -0.03em; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .stat .detalle { color: var(--texto-suave); font-size: 0.8rem; margin-top: 0.25rem; }
-/* Aviso: el numero queda igual que en las otras tarjetas; solo el icono y la
-   linea de detalle van en ambar. Llama la atencion sin romper la armonia.
-   Texto #92400e sobre blanco: 7,1:1 */
+/* Aviso en ambar suave, sin alarmar. Texto #92400e sobre blanco: 7,1:1 */
 .stat.alerta { border-color: #fde68a; background: linear-gradient(180deg, #fffcf2, var(--blanco) 60%); }
 .stat.alerta .detalle { color: #92400e; font-weight: 500; }
 /* Icono de la tarjeta: circulo celeste arriba a la derecha (ambar suave si es un aviso) */
@@ -302,17 +287,13 @@ button, input, select, textarea { font: inherit; }
 .btn-grande { width: 100%; padding: var(--e-4); font-size: 1.05rem; font-weight: 600; border-radius: var(--radio); }
 .acciones { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 
-/* ---------- Efectos al pasar el mouse (hover) ----------
- * Para que se note que algo es clickeable: se oscurece un poco el color y
- * aparece una sombra suave. La transicion lo hace suave.
- */
+/* ---------- Hover: se nota que algo es clickeable ---------- */
 .btn, .nav-link, .stat, a.card, tbody tr, .fila-viaje {
   transition: box-shadow var(--transicion), background-color var(--transicion), border-color var(--transicion), transform var(--transicion);
 }
 .btn:hover:not(:disabled) { box-shadow: 0 2px 6px rgba(16, 24, 40, 0.15); }
 .btn:active:not(:disabled) { box-shadow: none; filter: brightness(0.95); }   /* al hacer clic */
 .nav-link.active:hover { background: #dce8f5; }
-/* Tarjetas que son links (Panel de Control y viajes del conductor) */
 /* Las tarjetas que son links se elevan un poco al pasar el mouse */
 a.stat:hover, a.card:hover { border-color: #b9cfe8; box-shadow: var(--sombra-hover); transform: translateY(-2px); }
 a:not(.btn):not(.nav-link):not(.stat):not(.card):hover { text-decoration-thickness: 2px; }
@@ -322,8 +303,7 @@ a:not(.btn):not(.nav-link):not(.stat):not(.card):hover { text-decoration-thickne
   outline: 3px solid var(--primario); outline-offset: 2px;
 }
 
-/* Si la persona configuro su sistema para reducir animaciones, los cambios son
-   instantaneos (sin transicion). */
+/* Sin animaciones si la persona lo pidio en su sistema */
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
@@ -341,9 +321,7 @@ tbody tr:last-child td { border-bottom: none; }
 tbody tr:hover td { background: #f3f7fc; }   /* celeste muy suave: se ve que fila esta bajo el mouse */
 
 /* ---------- Tablas en pantallas chicas: cada fila es una tarjeta ----------
- * Asi no hay que deslizar de costado. El titulo de cada dato sale del
- * atributo data-label de la celda (attr() lee ese atributo desde el CSS).
- */
+ * El titulo de cada dato sale del atributo data-label de la celda (attr()). */
 @media (max-width: 900px) {
   .tabla-responsive thead { display: none; }
   .tabla-responsive, .tabla-responsive tbody, .tabla-responsive tr, .tabla-responsive td { display: block; width: 100%; }
@@ -395,9 +373,15 @@ tbody tr:hover td { background: #f3f7fc; }   /* celeste muy suave: se ve que fil
 .filtro select:focus, .filtro input:focus, .buscador input:focus {
   outline: none; border-color: var(--primario); box-shadow: var(--foco);
 }
-/* Placeholder: ayuda visual de que ingresar. Con el gris por defecto del
-   navegador el contraste era 2,4:1; con este llega a 4,8:1.
-   (opacity: 1 porque Firefox le baja la opacidad por defecto) */
+/* Error de un campo: borde rojo y el mensaje debajo, con un icono.
+   Texto #b91c1c sobre blanco: 6,5:1 */
+.campo-con-error input, .campo-con-error select, .campo-con-error textarea { border-color: #dc2626; }
+.campo-con-error input:focus, .campo-con-error select:focus, .campo-con-error textarea:focus {
+  border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.25);
+}
+.campo-error { display: flex; align-items: center; gap: 6px; color: #b91c1c; font-size: 0.82rem; font-weight: 500; }
+.campo-error svg { flex-shrink: 0; }
+/* Placeholder: 4,8:1 (el gris del navegador daba 2,4:1). opacity: 1 por Firefox */
 ::placeholder { color: var(--placeholder); opacity: 1; }
 /* Campos deshabilitados (ej: DNI al editar): se distinguen sin perder legibilidad */
 .campo input:disabled { background: var(--fondo); color: var(--texto-suave); cursor: not-allowed; }
@@ -454,6 +438,10 @@ tbody tr:hover td { background: #f3f7fc; }   /* celeste muy suave: se ve que fil
   .linea-texto .chico { font-size: 0.68rem; }
 }
 .texto-suave { color: var(--texto-suave); }
+/* Mientras se verifica la sesion: solo el logo, latiendo suave, en el centro */
+.pantalla-carga { min-height: 100vh; display: grid; place-items: center; background: var(--fondo); }
+.pantalla-carga img { animation: latido 1.2s ease-in-out infinite; }
+@keyframes latido { 50% { opacity: 0.45; transform: scale(0.94); } }
 /* Texto solo para lectores de pantalla (no se ve, pero se lee) */
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .chico { font-size: 0.85rem; }
@@ -523,8 +511,7 @@ tbody tr:hover td { background: #f3f7fc; }   /* celeste muy suave: se ve que fil
 .viaje-actual { border-top: 4px solid var(--primario); }
 .viaje-actual .btn-grande { box-shadow: 0 6px 16px -6px rgba(55, 118, 182, 0.6); }
 
-/* Inicio del conductor. Celular: una columna (viaje, resumen, historial).
-   Tablet y compu: viaje y resumen lado a lado, historial abajo a todo el ancho. */
+/* Inicio del conductor. Celular: una columna; tablet: viaje y resumen lado a lado */
 .conductor-panel {
   display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 var(--e-6); align-items: start;
   grid-template-areas: "actual" "resumen" "historial";

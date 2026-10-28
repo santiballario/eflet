@@ -1,5 +1,6 @@
 import { MapPin } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
+import { formatearHora } from '@/utils/formato';
 
 // Link de Google Maps que busca la direccion (no necesita clave ni API).
 const linkMapa = (direccion) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccion)}`;
@@ -32,6 +33,7 @@ export function ListaDestinos({ destinos, acciones, conMapa = false }) {
             </div>
             <div style={{ marginTop: '0.3rem' }}>
               <Badge estado={d.estado_entrega} />
+              {d.fecha_entrega && <span className="chico texto-suave"> a las {formatearHora(d.fecha_entrega)}</span>}
               {d.MotivoNoEntrega && (
                 <span className="chico texto-suave">
                   {' '}— {d.MotivoNoEntrega.descripcion}

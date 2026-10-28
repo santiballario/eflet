@@ -7,9 +7,20 @@ const tomarCampos = require('../lib/tomar-campos');
 // auditoria, etc. los maneja el sistema y se ignoran si vienen en el body.
 const CAMPOS_VEHICULO = ['patente', 'marca', 'modelo', 'cantidad_maxima', 'vencimiento_vtv', 'estado'];
 
+// Km del ultimo regreso registrado del vehiculo (null si todavia no hizo ningun viaje).
+// Subconsulta sobre viajes: el valor se calcula en la base, en la misma consulta.
+const ULTIMO_KM = db.sequelize.literal(`(
+  SELECT v.km_regreso FROM viajes v
+  WHERE v.vehiculo_id = Vehiculo.id AND v.km_regreso IS NOT NULL AND v.fecha_eliminacion IS NULL
+  ORDER BY v.fecha_regreso DESC LIMIT 1
+)`);
+
 async function listar() {
   // paranoid:true ya excluye los que tienen fecha_eliminacion seteada.
-  return db.Vehiculo.findAll({ order: [['id', 'ASC']] });
+  return db.Vehiculo.findAll({
+    attributes: { include: [[ULTIMO_KM, 'ultimo_km']] },
+    order: [['id', 'ASC']],
+  });
 }
 
 async function obtenerPorId(id) {

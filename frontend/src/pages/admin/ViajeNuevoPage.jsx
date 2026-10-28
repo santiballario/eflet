@@ -4,11 +4,12 @@ import { Trash2 } from 'lucide-react';
 import { useFetch } from '@/hooks/use-fetch';
 import { listarVehiculos } from '@/services/vehiculos';
 import { listarConductores } from '@/services/conductores';
-import { crearViaje } from '@/services/viajes';
+import { crearViaje, listarViajes } from '@/services/viajes';
 import { Alerta } from '@/components/ui/Alerta';
 import { Campo } from '@/components/ui/Campo';
 import { Cargando } from '@/components/ui/Cargando';
-import { diasHasta, nombreConductor } from '@/utils/formato';
+import { OpcionesConductor, OpcionesVehiculo } from '@/components/OpcionesAsignacion';
+import { motivoConductorNoApto, motivoVehiculoNoApto, ocupadosPorViajes } from '@/utils/aptitud';
 import { useTitulo } from '@/hooks/use-titulo';
 import { useAvisos } from '@/components/ui/avisos-context';
 
@@ -21,6 +22,7 @@ export function ViajeNuevoPage() {
   const navigate = useNavigate();
   const vehiculos = useFetch(listarVehiculos);
   const conductores = useFetch(listarConductores);
+  const viajes = useFetch(() => listarViajes());
 
   const [vehiculoId, setVehiculoId] = useState('');
   const [conductorId, setConductorId] = useState('');
@@ -28,11 +30,11 @@ export function ViajeNuevoPage() {
   const [error, setError] = useState('');
   const [enviando, setEnviando] = useState(false);
 
-  // En los desplegables mostramos solo lo que se puede asignar. Es solo para
-  // ayudar al usuario: el backend vuelve a validar todo (VTV, licencia, estado).
-  const vehiculosAptos = vehiculos.data?.filter((v) => v.estado === 'Activo' && diasHasta(v.vencimiento_vtv) >= 0) ?? [];
-  const conductoresAptos =
-    conductores.data?.filter((c) => c.disponibilidad === 'Disponible' && diasHasta(c.vencimiento_licencia) >= 0) ?? [];
+  // Los que ya estan en una hoja de ruta sin finalizar no se pueden volver a asignar
+  const vehiculosOcupados = ocupadosPorViajes(viajes.data, 'vehiculo_id');
+  const conductoresOcupados = ocupadosPorViajes(viajes.data, 'conductor_id');
+  const hayVehiculo = vehiculos.data?.some((v) => !motivoVehiculoNoApto(v, vehiculosOcupados));
+  const hayConductor = conductores.data?.some((c) => !motivoConductorNoApto(c, conductoresOcupados));
 
   // El estado es inmutable: en vez de modificar el array, armamos uno nuevo.
   function cambiarParada(indice, campo, valor) {
@@ -67,7 +69,7 @@ export function ViajeNuevoPage() {
     }
   }
 
-  if (vehiculos.cargando || conductores.cargando) return <Cargando />;
+  if (vehiculos.cargando || conductores.cargando || viajes.cargando) return <Cargando />;
 
   return (
     <>
@@ -78,24 +80,17 @@ export function ViajeNuevoPage() {
         <div className="fila">
           <Campo label="Vehículo" as="select" value={vehiculoId} onChange={(e) => setVehiculoId(e.target.value)} required>
             <option value="">Seleccionar vehículo...</option>
-            {vehiculosAptos.map((v) => (
-              <option key={v.id} value={v.id}>
-                {v.patente} - {v.marca} {v.modelo} ({Number(v.cantidad_maxima)} kg)
-              </option>
-            ))}
+            <OpcionesVehiculo vehiculos={vehiculos.data ?? []} ocupados={vehiculosOcupados} />
           </Campo>
           <Campo label="Conductor" as="select" value={conductorId} onChange={(e) => setConductorId(e.target.value)} required>
             <option value="">Seleccionar conductor...</option>
-            {conductoresAptos.map((c) => (
-              <option key={c.id} value={c.id}>
-                {nombreConductor(c)}
-              </option>
-            ))}
+            <OpcionesConductor conductores={conductores.data ?? []} ocupados={conductoresOcupados} />
           </Campo>
         </div>
-        {(vehiculosAptos.length === 0 || conductoresAptos.length === 0) && (
+        {(!hayVehiculo || !hayConductor) && (
           <Alerta tipo="advertencia">
-            Solo aparecen vehículos activos con VTV vigente y conductores disponibles con licencia vigente.
+            {!hayVehiculo ? 'No hay ningún vehículo disponible' : 'No hay ningún conductor disponible'} en este momento.
+            Los que aparecen en gris no se pueden asignar por el motivo indicado.
           </Alerta>
         )}
 
