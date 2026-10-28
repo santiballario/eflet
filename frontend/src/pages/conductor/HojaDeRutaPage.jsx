@@ -11,6 +11,7 @@ import { Cargando } from '@/components/ui/Cargando';
 import { ListaDestinos } from '@/components/ListaDestinos';
 import { Progreso } from '@/components/ui/Progreso';
 import { descripcionVehiculo } from '@/utils/formato';
+import { useTitulo } from '@/hooks/use-titulo';
 
 // Flujo del conductor segun el estado del viaje:
 //   En Deposito -> carga km y registra la SALIDA
@@ -19,6 +20,7 @@ import { descripcionVehiculo } from '@/utils/formato';
 //   Finalizado  -> resumen
 export function HojaDeRutaPage() {
   const { id } = useParams();
+  useTitulo(`Hoja de ruta #${id}`);
   // setData: cada accion del backend devuelve el viaje actualizado, asi que lo
   // reemplazamos directo sin volver a pedirlo.
   const { data: viaje, error, cargando, setData: setViaje } = useFetch(() => obtenerViaje(id), [id]);
@@ -206,7 +208,7 @@ export function HojaDeRutaPage() {
 
         <div className="card">
           <h2>Paradas</h2>
-          <ListaDestinos destinos={viaje.Destinos} acciones={accionesParada} />
+          <ListaDestinos destinos={viaje.Destinos} acciones={accionesParada} conMapa />
         </div>
       </div>
     </>

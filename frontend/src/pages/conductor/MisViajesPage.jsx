@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
-import { ChevronRight } from 'lucide-react';
+import { CalendarCheck, ChevronRight, Gauge, IdCard, PackageCheck, Route, Truck } from 'lucide-react';
 import { useFetch } from '@/hooks/use-fetch';
 import { listarViajes } from '@/services/viajes';
 import { getMe } from '@/services/auth';
@@ -9,21 +9,29 @@ import { Badge } from '@/components/ui/Badge';
 import { Cargando } from '@/components/ui/Cargando';
 import { Progreso } from '@/components/ui/Progreso';
 import { StatCard } from '@/components/ui/StatCard';
-import { descripcionVehiculo, diaLocal, diasHasta, formatearFecha, formatearFechaHora, hoyLocal } from '@/utils/formato';
+import { Vacio } from '@/components/ui/Vacio';
+import {
+  descripcionVehiculo,
+  diaLocal,
+  diasHasta,
+  fechaDeHoyLarga,
+  formatearFecha,
+  formatearFechaHora,
+  hoyLocal,
+} from '@/utils/formato';
+import { useTitulo } from '@/hooks/use-titulo';
 
 const resueltas = (viaje) => viaje.Destinos.filter((d) => d.estado_entrega !== 'Pendiente').length;
 
 // Pantalla de inicio del conductor (pensada para el celular):
-// saludo, aviso de licencia, su viaje actual destacado, un resumen y el historial.
+// saludo, aviso de licencia, su viaje actual destacado, un resumen, su licencia y el historial.
 // El backend ya devuelve solo los viajes de este conductor (filtra por el token).
 export function MisViajesPage() {
+  useTitulo('Mis viajes');
   const viajes = useFetch(() => listarViajes());
   const perfil = useFetch(getMe);
   // La fecha de hoy se calcula una sola vez al abrir la pantalla (no en cada render)
-  const [hoy] = useState(() => {
-    const texto = new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' });
-    return texto.charAt(0).toUpperCase() + texto.slice(1); // "Miércoles, 14 de octubre"
-  });
+  const [hoy] = useState(fechaDeHoyLarga);
   // El resumen se puede ver solo de hoy o de todos los viajes ('hoy' | 'total').
   // Va antes de los return de abajo: los hooks siempre tienen que llamarse en el mismo orden.
   const [periodo, setPeriodo] = useState('total');
@@ -50,9 +58,18 @@ export function MisViajesPage() {
 
   return (
     <>
-      <div className="saludo">
-        <h1>Hola, {yo.nombre}</h1>
-        <p className="texto-suave">{hoy}</p>
+      {/* Mismo cartel con degradé que el inicio del administrador */}
+      <div className="bienvenida bienvenida-conductor">
+        <div>
+          <p className="bienvenida-fecha">{hoy}</p>
+          <h1>Hola, {yo.nombre}</h1>
+          <p>
+            {pendientes.length === 0
+              ? 'No tenés viajes pendientes.'
+              : `Tenés ${pendientes.length} ${pendientes.length === 1 ? 'viaje' : 'viajes'} por hacer.`}
+          </p>
+        </div>
+        <Truck className="bienvenida-dibujo" size={130} strokeWidth={1.2} aria-hidden="true" />
       </div>
 
       {diasLicencia !== null && diasLicencia < 0 && (
@@ -65,14 +82,17 @@ export function MisViajesPage() {
       )}
 
       {/* Celular: todo en una columna.
-          Tablet y compu: el viaje de hoy y el resumen lado a lado, y abajo el
-          historial ocupando todo el ancho (ver .conductor-panel en index.css) */}
+          Tablet: el viaje de hoy y el resumen lado a lado, y abajo el historial.
+          Compu: a la izquierda el viaje y el historial; a la derecha, una columna
+          con el resumen y la licencia (ver .conductor-panel en index.css) */}
       <div className="conductor-panel">
         <div className="panel-actual">
           {actual ? (
             <ViajeActual viaje={actual} />
           ) : (
-            <div className="card vacio">No tenés viajes asignados por ahora.</div>
+            <div className="card">
+              <Vacio icono={CalendarCheck}>No tenés viajes asignados por ahora.</Vacio>
+            </div>
           )}
 
           {otros.length > 0 && (
@@ -93,10 +113,12 @@ export function MisViajesPage() {
             </div>
           </div>
           <div className="stats">
-            <StatCard titulo="Viajes realizados" valor={realizados.length} />
-            <StatCard titulo="Entregas hechas" valor={entregas} />
-            <StatCard titulo="Km recorridos" valor={km.toLocaleString('es-AR')} />
+            <StatCard titulo="Viajes realizados" valor={realizados.length} icono={Route} />
+            <StatCard titulo="Entregas hechas" valor={entregas} icono={PackageCheck} />
+            <StatCard titulo="Km recorridos" valor={km.toLocaleString('es-AR')} icono={Gauge} />
           </div>
+
+          {yo.conductor && <TuLicencia conductor={yo.conductor} dias={diasLicencia} />}
         </section>
 
         {finalizados.length > 0 && (
@@ -106,6 +128,30 @@ export function MisViajesPage() {
         )}
       </div>
     </>
+  );
+}
+
+// Tarjeta con el numero de licencia, el vencimiento y si esta vigente
+function TuLicencia({ conductor, dias }) {
+  const estado =
+    dias < 0
+      ? { clase: 'error', texto: 'Vencida' }
+      : dias <= 30
+        ? { clase: 'advertencia', texto: `Vence en ${dias} días` }
+        : { clase: 'exito', texto: 'Vigente' };
+
+  return (
+    <div className="card tarjeta-licencia">
+      <span className="stat-icono">
+        <IdCard size={20} aria-hidden="true" />
+      </span>
+      <div className="etiqueta">Tu licencia</div>
+      <div className="licencia-numero">{conductor.nro_licencia}</div>
+      <div className="licencia-vence">
+        <span className="chico texto-suave">Vence el {formatearFecha(conductor.vencimiento_licencia)}</span>
+        <span className={`badge badge-${estado.clase}`}>{estado.texto}</span>
+      </div>
+    </div>
   );
 }
 
