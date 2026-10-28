@@ -35,6 +35,14 @@ test('datos invalidos -> 400', async () => {
   assert.equal(res.status, 400);
 });
 
+test('capacidad mayor a la que admite la base -> 400 (antes daba error 500)', async () => {
+  const res = await api().post('/api/vehiculos').set(auth()).send({
+    patente: `C${sufijo()}`, marca: 'Renault', modelo: 'Master', cantidad_maxima: 99999999, vencimiento_vtv: '2030-01-01',
+  });
+  assert.equal(res.status, 400);
+  assert.equal(res.body.mensaje, 'La capacidad maxima debe ser un numero mayor a 0 y de hasta 9999.99 kg.');
+});
+
 test('patente duplicada -> 409', async () => {
   const v = await crearVehiculo(admin);
   const res = await api()

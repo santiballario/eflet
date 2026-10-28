@@ -212,6 +212,65 @@ describe('auditoria de kilometraje del vehiculo', () => {
   });
 });
 
+describe('motivo de no entrega "Otro"', () => {
+  test('exige una descripcion; con otros motivos la descripcion no se guarda', async () => {
+    const v3 = await crearVehiculo(admin);
+    const creado = await crearViaje({
+      vehiculo_id: v3.id,
+      conductor_id: c2.id,
+      destinos: [...destinos, { direccion_farmacia: 'Farmacia Norte, Calle 13 N 845', cantidad_bultos: 2 }],
+    });
+    assert.equal(creado.status, 201);
+    const viaje = creado.body.viaje;
+    const [d1, d2, d3] = viaje.Destinos;
+    const entrega = (destino, body) =>
+      api().patch(`/api/viajes/${viaje.id}/destinos/${destino.id}/entrega`).set(conToken(tc2)).send(body);
+
+    assert.equal((await api().post(`/api/viajes/${viaje.id}/salida`).set(conToken(tc2)).send({ km_salida: 100 })).status, 200);
+    const motivos = (await api().get('/api/motivos-no-entrega').set(conToken(tc2))).body.motivos;
+    const otro = motivos.find((m) => m.descripcion === 'Otro');
+    const localCerrado = motivos.find((m) => m.descripcion === 'Local cerrado');
+    assert.ok(otro, 'el catalogo incluye el motivo "Otro"');
+
+    const sinDetalle = await entrega(d1, { estado_entrega: 'No entregado', motivo_id: otro.id });
+    assert.equal(sinDetalle.status, 400);
+    assert.equal(sinDetalle.body.mensaje, 'Si el motivo es "Otro", contá brevemente qué pasó.');
+
+    const conDetalle = await entrega(d1, { estado_entrega: 'No entregado', motivo_id: otro.id, detalle_motivo: 'Porton con candado y sin nadie' });
+    assert.equal(conDetalle.status, 200);
+    const guardado = conDetalle.body.viaje.Destinos.find((d) => d.id === d1.id);
+    assert.equal(guardado.MotivoNoEntrega.descripcion, 'Otro');
+    assert.equal(guardado.detalle_motivo, 'Porton con candado y sin nadie');
+
+    const otroMotivo = await entrega(d2, { estado_entrega: 'No entregado', motivo_id: localCerrado.id, detalle_motivo: 'no corresponde' });
+    assert.equal(otroMotivo.status, 200);
+    assert.equal(otroMotivo.body.viaje.Destinos.find((d) => d.id === d2.id).detalle_motivo, null);
+
+    // Se cierra el viaje para que el conductor vuelva a quedar disponible
+    assert.equal((await entrega(d3, { estado_entrega: 'Entregado' })).status, 200);
+    assert.equal((await api().post(`/api/viajes/${viaje.id}/regreso`).set(conToken(tc2)).send({ km_regreso: 150 })).status, 200);
+  });
+});
+
+describe('limites de los datos (evitan errores 500 de la base)', () => {
+  test('una parada con demasiados bultos -> 400', async () => {
+    const res = await crearViaje({ vehiculo_id: v1.id, conductor_id: c1.id, destinos: [{ direccion_farmacia: 'X', cantidad_bultos: 5000 }] });
+    assert.equal(res.status, 400);
+    assert.equal(res.body.mensaje, 'La cantidad de bultos debe ser un entero entre 1 y 1000.');
+  });
+
+  test('un viaje con mas de 50 destinos -> 400', async () => {
+    const muchos = Array.from({ length: 51 }, (_, i) => ({ direccion_farmacia: `Farmacia ${i}`, cantidad_bultos: 1 }));
+    const res = await crearViaje({ vehiculo_id: v1.id, conductor_id: c1.id, destinos: muchos });
+    assert.equal(res.status, 400);
+  });
+
+  test('un kilometraje absurdo -> 400', async () => {
+    const res = await api().post('/api/viajes/1/salida').set(conToken(tc1)).send({ km_salida: 99999999999 });
+    assert.equal(res.status, 400);
+  });
+});
+
 test('catalogo de estados de viaje', async () => {
   const res = await api().get('/api/estados-viaje').set(conToken(admin));
   assert.equal(res.status, 200);

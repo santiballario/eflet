@@ -13,7 +13,7 @@ const { Op } = require('sequelize');
 const db = require('../models');
 const { AppError } = require('../lib/errors');
 const tomarCampos = require('../lib/tomar-campos');
-const { ESTADO_VIAJE, ESTADO_ENTREGA, DISPONIBILIDAD, ESTADO_VEHICULO } = require('../domain/estados');
+const { ESTADO_VIAJE, ESTADO_ENTREGA, MOTIVO_OTRO, DISPONIBILIDAD, ESTADO_VEHICULO, LIMITES } = require('../domain/estados');
 
 const CAMPOS_DESTINO = ['direccion_farmacia', 'cantidad_bultos', 'orden'];
 
@@ -36,7 +36,7 @@ const INCLUDE_VIAJE = [
   { model: db.Usuario, as: 'creador', attributes: ['id', 'email'] },
   {
     model: db.Destino,
-    attributes: ['id', 'orden', 'direccion_farmacia', 'cantidad_bultos', 'estado_entrega', 'motivo_id'],
+    attributes: ['id', 'orden', 'direccion_farmacia', 'cantidad_bultos', 'estado_entrega', 'motivo_id', 'detalle_motivo'],
     include: [{ model: db.MotivoNoEntrega, attributes: ['id', 'descripcion'] }],
   },
 ];
@@ -263,6 +263,11 @@ async function agregarDestino(viajeId, datos, usuarioId) {
   const viaje = await buscarViaje(viajeId);
   exigirEstado(viaje, ESTADO_VIAJE.EN_DEPOSITO, 'Solo se pueden agregar destinos a un viaje que todavia no salio');
 
+  const cantidad = await db.Destino.count({ where: { viaje_id: viajeId } });
+  if (cantidad >= LIMITES.PARADAS_POR_VIAJE) {
+    throw new AppError(`Un viaje no puede tener mas de ${LIMITES.PARADAS_POR_VIAJE} destinos.`, 409);
+  }
+
   const nuevo = tomarCampos(datos, CAMPOS_DESTINO);
   if (nuevo.orden === undefined) {
     const maximo = await db.Destino.max('orden', { where: { viaje_id: viajeId } });
@@ -366,6 +371,7 @@ async function registrarEntrega(viajeId, destinoId, datos, usuario) {
   }
 
   let motivoId = null;
+  let detalleMotivo = null;
   if (datos.estado_entrega === ESTADO_ENTREGA.NO_ENTREGADO) {
     if (!datos.motivo_id) {
       throw new AppError('Para marcar un destino como "No entregado" hay que indicar el motivo.', 400);
@@ -373,10 +379,22 @@ async function registrarEntrega(viajeId, destinoId, datos, usuario) {
     const motivo = await db.MotivoNoEntrega.findByPk(datos.motivo_id);
     if (!motivo) throw new AppError('El motivo de no entrega no existe.', 404);
     motivoId = motivo.id;
+
+    // "Otro" es para lo que no esta en la lista: el conductor tiene que
+    // contar brevemente que paso. Con los demas motivos no hace falta.
+    if (motivo.descripcion === MOTIVO_OTRO) {
+      detalleMotivo = datos.detalle_motivo?.trim();
+      if (!detalleMotivo) {
+        throw new AppError('Si el motivo es "Otro", contá brevemente qué pasó.', 400);
+      }
+    }
   }
 
   await db.sequelize.transaction(async (t) => {
-    await destino.update({ estado_entrega: datos.estado_entrega, motivo_id: motivoId }, { transaction: t });
+    await destino.update(
+      { estado_entrega: datos.estado_entrega, motivo_id: motivoId, detalle_motivo: detalleMotivo },
+      { transaction: t }
+    );
 
     // Si ya no queda ninguna parada pendiente, el viaje pasa a "Entregado".
     const pendientes = await db.Destino.count({

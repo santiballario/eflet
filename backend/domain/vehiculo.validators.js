@@ -3,6 +3,11 @@ const { body, param } = require('express-validator');
 
 const ESTADOS_VALIDOS = ['Activo', 'En mantenimiento', 'Baja'];
 
+// La columna es DECIMAL(6,2): admite hasta 9999,99. Sin este tope, un numero
+// mas grande llegaba a la base y MySQL respondia con un error 500.
+const CAPACIDAD_MAXIMA_KG = 9999.99;
+const MENSAJE_CAPACIDAD = `La capacidad maxima debe ser un numero mayor a 0 y de hasta ${CAPACIDAD_MAXIMA_KG} kg.`;
+
 const crearVehiculoValidator = [
   body('patente')
     .trim()
@@ -16,7 +21,7 @@ const crearVehiculoValidator = [
     .notEmpty().withMessage('El modelo es obligatorio.'),
   body('cantidad_maxima')
     .notEmpty().withMessage('La cantidad maxima es obligatoria.')
-    .isFloat({ gt: 0 }).withMessage('La cantidad maxima debe ser un numero mayor a 0.'),
+    .isFloat({ gt: 0, max: CAPACIDAD_MAXIMA_KG }).withMessage(MENSAJE_CAPACIDAD),
   body('vencimiento_vtv')
     .notEmpty().withMessage('El vencimiento de la VTV es obligatorio.')
     .isDate().withMessage('El vencimiento de la VTV debe ser una fecha valida (YYYY-MM-DD).'),
@@ -32,7 +37,7 @@ const actualizarVehiculoValidator = [
   body('patente').optional().trim().isLength({ max: 10 }),
   body('marca').optional().trim().notEmpty(),
   body('modelo').optional().trim().notEmpty(),
-  body('cantidad_maxima').optional().isFloat({ gt: 0 }),
+  body('cantidad_maxima').optional().isFloat({ gt: 0, max: CAPACIDAD_MAXIMA_KG }).withMessage(MENSAJE_CAPACIDAD),
   body('vencimiento_vtv').optional().isDate(),
   body('estado').optional().isIn(ESTADOS_VALIDOS),
 ];
