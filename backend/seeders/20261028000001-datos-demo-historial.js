@@ -212,6 +212,8 @@ module.exports = {
         },
       ]);
       const [[{ id: viajeId }]] = await queryInterface.sequelize.query('SELECT MAX(id) AS id FROM viajes');
+      // Hora de cada parada: repartidas entre la salida y el regreso (o cada 40 min si no volvio)
+      const paso = regreso ? (regreso - salida) / (v.paradas.length + 1) : 40 * 60000;
       await queryInterface.bulkInsert('destinos', v.paradas.map(([direccion, bultos, motivoNoEntrega, detalle], orden) => ({
         viaje_id: viajeId,
         orden: orden + 1,
@@ -220,6 +222,7 @@ module.exports = {
         estado_entrega: motivoNoEntrega ? 'No entregado' : 'Entregado',
         motivo_id: motivoNoEntrega ? motivo[motivoNoEntrega] : null,
         detalle_motivo: detalle ?? null,
+        fecha_entrega: new Date(salida.getTime() + paso * (orden + 1)),
       })));
     }
   },
